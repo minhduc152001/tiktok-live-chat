@@ -3,24 +3,12 @@ const mongoose = require("mongoose");
 const chatSchema = new mongoose.Schema(
   {
     room: {
-      type: {
-        roomId: String,
-        createTime: Date,
-        _id: false,
-      },
-      // ref: "Room",
+      type: mongoose.Types.ObjectId,
+      ref: "Room",
       required: [true, "Room info can not be empty"],
     },
-    owner: {
-      type: {
-        displayId: String,
-        nickname: String,
-        _id: false,
-      },
-      required: [true, "Owner info can not be empty"],
-    },
     user: {
-      type: String, // mongoose.Schema.ObjectId,
+      type: mongoose.Schema.ObjectId,
       ref: "User",
       required: [true, "User ID can not be empty"],
     },

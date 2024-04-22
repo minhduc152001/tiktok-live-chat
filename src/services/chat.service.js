@@ -1,7 +1,7 @@
 const ChatModel = require("../models/chat.model");
 
 class ChatService {
-  static add = async (msg, room, userId, owner) => {
+  static add = async (msg, room, userId) => {
     const data = {
       room,
       user: userId,
@@ -11,7 +11,6 @@ class ChatService {
       nickname: msg.nickname,
       msgId: msg.msgId,
       createdAt: new Date(parseInt(msg.createTime)),
-      owner,
     };
 
     const chat = await ChatModel.create(data);
