@@ -12,6 +12,8 @@ const {
 const { clientBlocked } = require("./utils/limiter");
 const ChatService = require("./services/chat.service");
 const userRouter = require("./routers/user.routes");
+const orderRouter = require("./routers/order.routes");
+const RoomService = require("./services/room.service");
 
 const app = express();
 const httpServer = createServer(app);
@@ -54,14 +56,7 @@ app.use((req, res, next) => {
 
 io.on("connection", (socket) => {
   let tiktokConnectionWrapper;
-  let room = {
-    roomId: "",
-    createTime: null,
-  };
-  const owner = {
-    displayId: "",
-    nickname: "",
-  };
+  let newRoom = undefined;
 
   console.info(
     "New connection from origin",
@@ -109,11 +104,23 @@ io.on("connection", (socket) => {
     }
 
     // Redirect wrapper control events once
-    tiktokConnectionWrapper.once("connected", (state) => {
-      room.roomId = state.roomId;
-      room.createTime = new Date(parseInt(state.roomInfo.create_time) * 1000);
-      owner.displayId = state.roomInfo.owner.display_id;
-      owner.nickname = state.roomInfo.owner.nickname;
+    tiktokConnectionWrapper.once("connected", async (state) => {
+      let roomId;
+
+      try {
+        const owner = {
+          displayId: state.roomInfo.owner.display_id,
+          nickname: state.roomInfo.owner.nickname,
+        };
+
+        roomId = state.roomId;
+        const roomCreateTime = state.roomInfo.create_time;
+
+        newRoom = await RoomService.add(userId, roomId, owner, roomCreateTime);
+      } catch (error) {
+        console.error("Error when storing new room:", error);
+        newRoom = await RoomService.get(roomId);
+      }
 
       return socket.emit("tiktokConnected", state);
     });
@@ -135,7 +142,11 @@ io.on("connection", (socket) => {
     // );
     tiktokConnectionWrapper.connection.on("chat", async (msg) => {
       // Store chat
-      await ChatService.add(msg, room, userId, owner);
+      try {
+        await ChatService.add(msg, newRoom.id, userId);
+      } catch (error) {
+        console.log("Error when adding new chat", error);
+      }
 
       return socket.emit("chat", msg);
     });
@@ -150,6 +161,7 @@ io.on("connection", (socket) => {
 
 // ROUTES
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/orders", orderRouter);
 
 // Start http listener
 const port = process.env.PORT || 8081;

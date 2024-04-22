@@ -4,17 +4,23 @@ const roomSchema = new mongoose.Schema({
   roomId: {
     type: String,
     required: [true, "Room ID can not be empty"],
+    unique: true,
   },
-  ownerId: {
-    type: String,
-    required: [true, "Owner ID can not be empty"],
+  user: {
+    type: mongoose.Schema.ObjectId,
+    ref: "User",
+    required: [true, "User ID can not be empty"],
   },
-  ownerDisplayId: {
-    type: String,
-    required: [true, "Owner Unique ID can not be empty"],
+  owner: {
+    type: {
+      displayId: String,
+      nickname: String,
+      _id: false,
+    },
+    required: [true, "Owner info can not be empty"],
   },
-  ownerNickname: {
-    type: String,
+  createTime: {
+    type: Date,
   },
 });
 
