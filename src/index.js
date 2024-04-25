@@ -174,6 +174,6 @@ app.use("/api/v1/rooms", roomRouter);
 app.use("/api/v1/chats", chatRouter);
 
 // Start http listener
-const port = process.env.PORT || 8081;
+const port = process.env.PORT;
 httpServer.listen(port);
 console.info(`Server running! Please visit http://localhost:${port}`);
