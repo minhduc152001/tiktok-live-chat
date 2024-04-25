@@ -9,25 +9,11 @@ const userInfo = fetch("http://localhost:8081/api/v1/users/me", {
   mode: "cors",
   headers: {
     "Content-Type": "application/json",
-    // 'Content-Type': 'application/x-www-form-urlencoded',
   },
 })
   .then((data) => data.json())
   .then((res) => {
-    // const userInfo = fetch("http://localhost:8081/api/v1/users/login", {
-    //   method: "POST",
-    //   mode: "cors",
-    //   headers: {
-    //     "Content-Type": "application/json",
-    //     // 'Content-Type': 'application/x-www-form-urlencoded',
-    //   },
-    //   body: JSON.stringify({
-    //     email: "mduc152001@gmail.com",
-    //     password: "123456",
-    //   }),
-    // }).then((data) => console.log("user info:", data.json()));
-
-    const uniqueIds = res.data.data.tiktokIds;
+    const uniqueIds = res.data.user.tiktokIds;
 
     let connections = uniqueIds.map(
       (id) => new TikTokIOConnection(backendUrl, id)
@@ -35,41 +21,6 @@ const userInfo = fetch("http://localhost:8081/api/v1/users/me", {
 
     // Counter
     let viewerCount = 0;
-
-    // function connect() {
-    //   let uniqueId = window.settings.username || $("#uniqueIdInput").val();
-    //   if (uniqueId !== "") {
-    //     $("#stateText").text("Connecting...");
-
-    //     connections.map((connection) =>
-    //       connection
-    //         .connect(uniqueId, {
-    //           enableExtendedGiftInfo: true,
-    //         })
-    //         .then((state) => {
-    //           $("#stateText").text(`Connected to roomId ${state.roomId}`);
-
-    //           // reset stats
-    //           viewerCount = 0;
-    //           likeCount = 0;
-    //           diamondsCount = 0;
-    //           updateRoomStats();
-    //         })
-    //         .catch((errorMessage) => {
-    //           $("#stateText").text(errorMessage);
-
-    //           // schedule next try if obs username set
-    //           if (window.settings.username) {
-    //             setTimeout(() => {
-    //               connect(window.settings.username);
-    //             }, 30000);
-    //           }
-    //         })
-    //     );
-    //   } else {
-    //     alert("no username entered");
-    //   }
-    // }
 
     // Prevent Cross site scripting (XSS)
     function sanitize(text) {
