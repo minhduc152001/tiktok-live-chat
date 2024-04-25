@@ -18,7 +18,7 @@ class ChatService {
     return chat;
   };
 
-  static list = async (userId, roomId) => {
+  static list = async ({ userId, roomId }) => {
     const comments = await ChatModel.find({
       user: userId,
       room: roomId,

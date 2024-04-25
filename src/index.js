@@ -13,6 +13,8 @@ const { clientBlocked } = require("./utils/limiter");
 const ChatService = require("./services/chat.service");
 const userRouter = require("./routers/user.routes");
 const orderRouter = require("./routers/order.routes");
+const roomRouter = require("./routers/room.routes");
+const chatRouter = require("./routers/chat.routes");
 const RoomService = require("./services/room.service");
 
 const app = express();
@@ -114,9 +116,15 @@ io.on("connection", (socket) => {
         };
 
         roomId = state.roomId;
-        const roomCreateTime = state.roomInfo.create_time;
+        const { create_time: roomCreateTime, title } = state.roomInfo;
 
-        newRoom = await RoomService.add(userId, roomId, owner, roomCreateTime);
+        newRoom = await RoomService.add(
+          userId,
+          roomId,
+          owner,
+          title,
+          roomCreateTime
+        );
       } catch (error) {
         console.error("Error when storing new room:", error);
         newRoom = await RoomService.get(roomId);
@@ -162,6 +170,8 @@ io.on("connection", (socket) => {
 // ROUTES
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/orders", orderRouter);
+app.use("/api/v1/rooms", roomRouter);
+app.use("/api/v1/chats", chatRouter);
 
 // Start http listener
 const port = process.env.PORT || 8081;

@@ -1,6 +1,8 @@
 const UserModel = require("../models/user.model");
+const AppError = require("../utils/AppError");
+const catchAsync = require("../utils/catchAsync");
 
-exports.getMe = async (req, res, next) => {
+exports.getMe = catchAsync(async (req, res, next) => {
   const userId = req.user.id;
   const user = await UserModel.findById(userId);
 
@@ -11,7 +13,7 @@ exports.getMe = async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: {
-      data: user,
+      user,
     },
   });
-};
+});

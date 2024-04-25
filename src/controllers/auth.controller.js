@@ -51,6 +51,19 @@ exports.createUser = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.updateUser = catchAsync(async (req, res, next) => {
+  const { userId, ...data } = req.body;
+
+  const user = await UserModel.findByIdAndUpdate(userId, data, { new: true });
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      user,
+    },
+  });
+});
+
 exports.login = catchAsync(async (req, res, next) => {
   const { email, password } = req.body;
 

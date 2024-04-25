@@ -1,43 +1,21 @@
 const mongoose = require("mongoose");
+const { isVietnamesePhoneNumberValid } = require("../utils/checkValidPhone");
 
 const orderSchema = new mongoose.Schema(
   {
-    room: {
-      type: {
-        roomId: String,
-        createTime: Date,
-        _id: false,
-      },
-      // ref: "Room",
-      required: [true, "Room info can not be empty"],
-    },
-    owner: {
-      type: {
-        displayId: String,
-        nickname: String,
-        _id: false,
-      },
-      required: [true, "Owner info can not be empty"],
-    },
-    user: {
-      type: String, // mongoose.Schema.ObjectId,
-      ref: "User",
-      required: [true, "User ID can not be empty"],
-    },
-    comment: {
-      type: String,
-      required: [true, "Comment can not be empty"],
-    },
-    viewerUniqueId: {
-      type: String,
-      required: [true, "Viewer unique ID can not be empty"],
-    },
-    nickname: {
-      type: String,
-    },
-    msgId: {
-      type: String,
+    chat: {
+      type: mongoose.Types.ObjectId,
+      ref: "Chat",
       unique: true,
+      require: [true, "Chat info can not be empty"],
+    },
+    phone: {
+      type: String,
+      required: [true, "Phone number can not be empty"],
+      validate: {
+        validator: isVietnamesePhoneNumberValid,
+        message: "Invalid phone number",
+      },
     },
   },
   {
@@ -45,6 +23,12 @@ const orderSchema = new mongoose.Schema(
     toObject: true,
   }
 );
+
+orderSchema.pre(/^find/, function (next) {
+  this.populate("chat");
+
+  next();
+});
 
 const OrderModel = mongoose.model("Order", orderSchema);
 
