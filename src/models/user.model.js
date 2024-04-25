@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const validator = require("validator");
 const bcrypt = require("bcrypt");
 const { randomUUID } = require("crypto");
+const { isVietnamesePhoneNumberValid } = require("../utils/checkValidPhone");
 
 const userSchema = new mongoose.Schema(
   {
@@ -22,10 +23,7 @@ const userSchema = new mongoose.Schema(
       unique: true,
       required: [true, "Phone number can not be empty"],
       validate: {
-        // ref: https://fozg.net/blog/validate-vietnamese-phone-number
-        validator: function isVietnamesePhoneNumberValid(number) {
-          return /(((\+|)84)|0)(3|5|7|8|9)+([0-9]{8})\b/.test(number);
-        },
+        validator: isVietnamesePhoneNumberValid,
         message: "Invalid phone number",
       },
     },
@@ -56,9 +54,9 @@ const userSchema = new mongoose.Schema(
   }
 );
 
-userSchema.pre('save', async function(next) {
+userSchema.pre("save", async function (next) {
   // Only run this function if password actually modified
-  if (!this.isModified('password')) return next();
+  if (!this.isModified("password")) return next();
 
   // Hash this password with cost of 12 (16 is much longer)
   this.password = await bcrypt.hash(this.password, 12);

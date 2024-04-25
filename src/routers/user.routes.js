@@ -7,6 +7,7 @@ const {
   logout,
   createUser,
   getAllUsers,
+  updateUser,
 } = require("../controllers/auth.controller");
 const { getMe } = require("../controllers/user.controller");
 
@@ -23,6 +24,7 @@ router.get("/me", protect, getMe);
 router
   .route("/")
   .get(protect, restrictTo("admin"), getAllUsers)
-  .post(protect, restrictTo("admin"), createUser);
+  .post(protect, restrictTo("admin"), createUser)
+  .put(protect, restrictTo("admin"), updateUser);
 
 module.exports = router;

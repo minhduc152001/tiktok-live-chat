@@ -6,6 +6,9 @@ const roomSchema = new mongoose.Schema({
     required: [true, "Room ID can not be empty"],
     unique: true,
   },
+  title: {
+    type: String,
+  },
   user: {
     type: mongoose.Schema.ObjectId,
     ref: "User",
