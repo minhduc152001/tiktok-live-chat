@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "TikTok livestream - C Phương, Tuấn Anh",
   "main": "index.js",
-  "proxy": "http://localhost:8081",
+  "proxy": "http://localhost:5000",
   "scripts": {
     "dev": "nodemon src/index.js",
     "prod": "node src/index.js"
