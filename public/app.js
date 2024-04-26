@@ -6,9 +6,9 @@ let backendUrl =
 
 const userInfo = fetch("http://localhost:8081/api/v1/users/me", {
   method: "GET",
-  mode: "no-cors",
   headers: {
     "Content-Type": "application/json",
+    "Access-Control-Allow-Origin": "*",
   },
 })
   .then((data) => data.json())
