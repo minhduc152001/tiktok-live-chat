@@ -6,7 +6,7 @@ let backendUrl =
 
 const userInfo = fetch("http://localhost:8081/api/v1/users/me", {
   method: "GET",
-  mode: "cors",
+  mode: "no-cors",
   headers: {
     "Content-Type": "application/json",
   },
