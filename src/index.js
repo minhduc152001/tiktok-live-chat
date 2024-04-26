@@ -16,6 +16,7 @@ const orderRouter = require("./routers/order.routes");
 const roomRouter = require("./routers/room.routes");
 const chatRouter = require("./routers/chat.routes");
 const RoomService = require("./services/room.service");
+const cors = require("cors");
 
 const app = express();
 const httpServer = createServer(app);
@@ -48,6 +49,9 @@ setInterval(() => {
 
 // Serve frontend files
 app.use(express.static("public"));
+
+// Use CORS
+app.use(cors());
 
 // Test middleware
 app.use((req, res, next) => {
