@@ -103,7 +103,7 @@ io.on("connection", (socket) => {
 
       setInterval(() => {
         tiktokConnectionWrapper.connect();
-      }, 3000);
+      }, 30000);
     } catch (err) {
       socket.emit("tiktokDisconnected", err.toString());
       return;
