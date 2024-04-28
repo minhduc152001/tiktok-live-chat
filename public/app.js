@@ -4,7 +4,7 @@ let backendUrl =
     ? "https://tiktok-chat-reader.zerody.one/"
     : undefined;
 
-const userInfo = fetch(`${location.origin}/api/v1/users/me`, {
+fetch(`${location.origin}/api/v1/users/me`, {
   method: "GET",
   headers: {
     "Content-Type": "application/json",
