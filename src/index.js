@@ -101,8 +101,8 @@ io.on("connection", (socket) => {
         true
       );
 
-      setInterval(() => {
-        tiktokConnectionWrapper.connect();
+      const intervalId = setInterval(() => {
+        tiktokConnectionWrapper.connect(undefined, intervalId);
       }, 3000);
     } catch (err) {
       socket.emit("tiktokDisconnected", err.toString());
