@@ -25,10 +25,6 @@ class TikTokConnectionWrapper extends EventEmitter {
     this.connection.on("streamEnd", () => {
       this.log(`streamEnd event received, giving up connection`);
       this.reconnectEnabled = false;
-
-      const intervalId = setInterval(() => {
-        this.connect(undefined, intervalId);
-      }, 3000);
     });
 
     this.connection.on("disconnected", () => {
@@ -47,9 +43,6 @@ class TikTokConnectionWrapper extends EventEmitter {
     this.connection
       .connect()
       .then((state) => {
-        // Clear interval
-        clearInterval(intervalId);
-
         this.log(
           `${isReconnect ? "Reconnected" : "Connected"} to roomId ${
             state.roomId
