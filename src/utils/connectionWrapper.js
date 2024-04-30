@@ -39,7 +39,7 @@ class TikTokConnectionWrapper extends EventEmitter {
     });
   }
 
-  connect(isReconnect, intervalId) {
+  connect(isReconnect) {
     this.connection
       .connect()
       .then((state) => {
