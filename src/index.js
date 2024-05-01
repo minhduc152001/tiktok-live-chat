@@ -63,6 +63,7 @@ app.use((req, res, next) => {
 io.on("connection", (socket) => {
   let tiktokConnectionWrapper;
   let newRoom = undefined;
+  const currentUserId = userId;
 
   console.info(
     "New connection from origin",
@@ -123,7 +124,7 @@ io.on("connection", (socket) => {
         const { create_time: roomCreateTime, title } = state.roomInfo;
 
         newRoom = await RoomService.add(
-          userId,
+          currentUserId,
           roomId,
           owner,
           title,
@@ -155,7 +156,7 @@ io.on("connection", (socket) => {
     tiktokConnectionWrapper.connection.on("chat", async (msg) => {
       // Store chat
       try {
-        await ChatService.add(msg, newRoom.id, userId);
+        await ChatService.add(msg, newRoom.id, currentUserId);
       } catch (error) {
         console.log("Error when adding new chat", error);
       }
