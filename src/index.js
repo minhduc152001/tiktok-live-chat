@@ -50,12 +50,15 @@ setInterval(() => {
 // Serve frontend files
 app.use(express.static("public"));
 
+// CORS options
+const corsOptions = {
+  origin: "*",
+  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  credentials: true, // Allow cookies and credentials
+};
+
 // Use CORS
-app.use(
-  cors({
-    credentials: true,
-  })
-);
+app.use(cors(corsOptions));
 
 // Test middleware
 app.use((req, res, next) => {
