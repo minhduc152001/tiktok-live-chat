@@ -50,22 +50,10 @@ setInterval(() => {
 // Serve frontend files
 app.use(express.static("public"));
 
-// CORS options
-const allowedOrigins = ["http://localhost:3000", "http://localhost:5173"];
-
-const corsOptions = {
-  origin: (origin, callback) => {
-    if (allowedOrigins.includes(origin) || !origin) {
-      callback(null, true);
-    } else {
-      callback(new Error("Not allowed by CORS"));
-    }
-  },
-  credentials: true, // Allow cookies and credentials
-};
-
-// Use CORS
-app.use(cors(corsOptions));
+// Implement CORS
+app.use(cors());
+// Access-Control-Allow-Origin
+app.options("*", cors());
 
 // Test middleware
 app.use((req, res, next) => {
