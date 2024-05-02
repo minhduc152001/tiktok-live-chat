@@ -3,9 +3,9 @@
  * With reconnect functionality.
  */
 class TikTokIOConnection {
-  constructor(backendUrl, uniqueId) {
+  constructor(backendUrl) {
     this.socket = io(backendUrl);
-    this.uniqueId = uniqueId || null;
+    this.uniqueId = null;
     this.options = null;
 
     this.socket.on("connect", () => {
