@@ -12,17 +12,6 @@ const signToken = (id) =>
 const createSendToken = (user, statusCode, req, res) => {
   const token = signToken(user._id);
 
-  const cookieOptions = {
-    expires: new Date(
-      Date.now() + process.env.JWT_COOKIE_EXPIRES_IN * 24 * 60 * 60 * 1000
-    ),
-    httpOnly: true,
-    secure: req.secure || req.headers["x-forwarded-proto"] === "https",
-  };
-
-  res.cookie("jwt", token, cookieOptions);
-  res.cookie("userId", user._id, cookieOptions);
-
   // Remove password from output
   user.password = undefined;
 
@@ -84,10 +73,6 @@ exports.login = catchAsync(async (req, res, next) => {
 });
 
 exports.logout = (req, res) => {
-  res.cookie("jwt", "loggedout", {
-    expires: new Date(Date.now() + 10 * 1000),
-    httpOnly: true,
-  });
   res.status(200).json({ status: "success" });
 };
 
@@ -110,9 +95,6 @@ exports.protect = catchAsync(async (req, res, next) => {
     req.headers.authorization.startsWith("Bearer")
   ) {
     token = req.headers.authorization.split(" ")[1];
-    // console.log(token);
-  } else if (req.cookies.jwt && req.cookies.jwt !== "loggedout") {
-    token = req.cookies.jwt;
   }
   if (!token) {
     return next(
@@ -122,7 +104,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   // 2) Verification token
   const decoded = await promisify(jwt.verify)(token, process.env.JWT_SECRET);
-  // console.log(decoded);
 
   // 3) Check if user still exist
   const freshUser = await UserModel.findById(decoded.id);

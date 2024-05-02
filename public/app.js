@@ -8,17 +8,46 @@ const startSync = () => {
   fetch(`${location.origin}/api/v1/users/me`, {
     method: "GET",
     headers: {
+      Authorization:
+        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjBiMTFmNjkyZjE2NWNjMzk2MDBjZCIsImlhdCI6MTcxNDY2MDc0OCwiZXhwIjoxNzQ2MTk2NzQ4fQ.kB_pEUzF8SZVpR1PMgXCZwmcVG_8cj7cCwhiEfi6lfc",
       "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
     },
   })
     .then((data) => data.json())
     .then((res) => {
-      const uniqueIds = res.data.user.tiktokIds;
+      const uniqueId = res.data.user.tiktokIds[0];
 
-      let connections = uniqueIds.map(
-        (id) => new TikTokIOConnection(backendUrl, id)
-      );
+      let connection = new TikTokIOConnection(backendUrl);
+
+      if (uniqueId !== "") {
+        $("#stateText").text("Connecting...");
+
+        connection
+          .connect(uniqueId, {
+            enableExtendedGiftInfo: true,
+          })
+          .then((state) => {
+            $("#stateText").text(`Connected to roomId ${state.roomId}`);
+
+            // reset stats
+            viewerCount = 0;
+            likeCount = 0;
+            diamondsCount = 0;
+            updateRoomStats();
+          })
+          .catch((errorMessage) => {
+            $("#stateText").text(errorMessage);
+
+            // schedule next try if obs username set
+            if (window.settings.username) {
+              setTimeout(() => {
+                connect(window.settings.username);
+              }, 30000);
+            }
+          });
+      } else {
+        alert("no username entered");
+      }
 
       // Counter
       let viewerCount = 0;
@@ -70,35 +99,31 @@ const startSync = () => {
       }
 
       // viewer stats
-      connections.map((connection) =>
-        connection.on("roomUser", (msg) => {
-          if (typeof msg.viewerCount === "number") {
-            viewerCount = msg.viewerCount;
-            updateRoomStats();
-          }
-        })
-      );
+      connection.on("roomUser", (msg) => {
+        if (typeof msg.viewerCount === "number") {
+          viewerCount = msg.viewerCount;
+          updateRoomStats();
+        }
+      });
 
       // New chat comment received
-      connections.map((connection) =>
-        connection.on("chat", (msg) => {
-          if (window.settings.showChats === "0") return;
+      connection.on("chat", (msg) => {
+        if (window?.settings?.showChats === "0") return;
 
-          addChatItem("", msg, msg.comment);
-        })
-      );
+        console.log("msg.comment:", msg.comment);
 
-      connections.map((connection) =>
-        connection.on("streamEnd", () => {
-          $("#stateText").text("Stream ended.");
+        addChatItem("", msg, msg.comment);
+      });
 
-          // schedule next try if obs username set
-          if (window.settings.username) {
-            setTimeout(() => {
-              connect(window.settings.username);
-            }, 30000);
-          }
-        })
-      );
+      connection.on("streamEnd", () => {
+        $("#stateText").text("Stream ended.");
+
+        // schedule next try if obs username set
+        if (window?.settings?.username) {
+          setTimeout(() => {
+            connect(window.settings.username);
+          }, 30000);
+        }
+      });
     });
 };
