@@ -51,9 +51,16 @@ setInterval(() => {
 app.use(express.static("public"));
 
 // CORS options
+const allowedOrigins = ["http://localhost:3000", "http://localhost:5173"];
+
 const corsOptions = {
-  origin: "*",
-  methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true, // Allow cookies and credentials
 };
 
