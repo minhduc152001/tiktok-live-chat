@@ -9,7 +9,7 @@ const startSync = () => {
     method: "GET",
     headers: {
       Authorization:
-        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MjBiMTFmNjkyZjE2NWNjMzk2MDBjZCIsImlhdCI6MTcxNDY2MDc0OCwiZXhwIjoxNzQ2MTk2NzQ4fQ.kB_pEUzF8SZVpR1PMgXCZwmcVG_8cj7cCwhiEfi6lfc",
+        "Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6IjY2MmE3YzdmOTUyMDVkOTI0ZmZjNGMyOCIsImlhdCI6MTcxNDY2NDc3MSwiZXhwIjoxNzQ2MjAwNzcxfQ.-J9znDNIqizLJF0UFdz_j4BlbM6pFv1OehgAACTLymI",
       "Content-Type": "application/json",
     },
   })
