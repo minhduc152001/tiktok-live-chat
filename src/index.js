@@ -51,7 +51,11 @@ setInterval(() => {
 app.use(express.static("public"));
 
 // Use CORS
-app.use(cors());
+app.use(
+  cors({
+    credentials: true,
+  })
+);
 
 // Test middleware
 app.use((req, res, next) => {
