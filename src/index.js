@@ -21,6 +21,8 @@ const cors = require("cors");
 const app = express();
 const httpServer = createServer(app);
 
+const port = process.env.PORT;
+
 // Enable cross origin resource sharing
 const io = new Server(httpServer, {
   cors: {
@@ -50,10 +52,26 @@ setInterval(() => {
 // Serve frontend files
 app.use(express.static("public"));
 
-// Implement CORS
-app.use(cors());
-// Access-Control-Allow-Origin
-app.options("*", cors());
+// CORS options
+const allowedOrigins = [
+  "http://localhost:3000",
+  "http://localhost:5173",
+  `http://localhost:${port}`,
+];
+
+const corsOptions = {
+  origin: (origin, callback) => {
+    if (allowedOrigins.includes(origin) || !origin) {
+      callback(null, true);
+    } else {
+      callback(new Error("Not allowed by CORS"));
+    }
+  },
+  credentials: true, // Allow cookies and credentials
+};
+
+// Use CORS
+app.use(cors(corsOptions));
 
 // Test middleware
 app.use((req, res, next) => {
@@ -181,6 +199,5 @@ app.use("/api/v1/rooms", roomRouter);
 app.use("/api/v1/chats", chatRouter);
 
 // Start http listener
-const port = process.env.PORT;
 httpServer.listen(port);
 console.info(`Server running! Please visit http://localhost:${port}`);
