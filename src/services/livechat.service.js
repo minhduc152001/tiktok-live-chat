@@ -51,7 +51,7 @@ class LiveService {
     tiktokConnectionWrapper.connection.on("chat", async (msg) => {
       // Store chat
       try {
-        await ChatService.add(msg, newRoom.id, userId);
+        await ChatService.add(msg, newRoom._id, userId);
       } catch (error) {
         console.log("Error when adding new chat", error);
       }
