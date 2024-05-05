@@ -3,6 +3,7 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const { randomUUID } = require("crypto");
 const { isVietnamesePhoneNumberValid } = require("../utils/checkValidPhone");
+const { jobQueue } = require("../clients/queue");
 
 const userSchema = new mongoose.Schema(
   {
@@ -32,7 +33,19 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password can not be empty"],
     },
     tiktokIds: {
-      type: [String],
+      type: [
+        {
+          tiktokId: {
+            type: String,
+            required: [true, "TikTok ID can not be empty"],
+          },
+          jobId: {
+            type: Number,
+            default: null,
+          },
+          _id: false,
+        },
+      ],
       default: [],
     },
     role: {
@@ -61,6 +74,21 @@ userSchema.pre("save", async function (next) {
   // Hash this password with cost of 12 (16 is much longer)
   this.password = await bcrypt.hash(this.password, 12);
 
+  const newTiktokIdsArr = await Promise.all(
+    this.tiktokIds.map(async ({ tiktokId }) => {
+      const job = await jobQueue.add({
+        tiktokId,
+        userId: this._id,
+      });
+
+      return {
+        tiktokId,
+        jobId: job.id,
+      };
+    })
+  );
+
+  this.tiktokIds = newTiktokIdsArr;
   next();
 });
 
