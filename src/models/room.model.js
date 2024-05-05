@@ -6,6 +6,10 @@ const roomSchema = new mongoose.Schema({
     required: [true, "Room ID can not be empty"],
     unique: true,
   },
+  isLive: {
+    type: Boolean,
+    default: false,
+  },
   title: {
     type: String,
   },

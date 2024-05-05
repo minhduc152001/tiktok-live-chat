@@ -8,6 +8,7 @@ class RoomService {
       owner,
       title,
       createTime: new Date(parseInt(createTime) * 1000),
+      isLive: true,
     };
 
     const room = await RoomModel.create(data);
@@ -25,6 +26,13 @@ class RoomService {
     });
 
     return rooms;
+  };
+
+  static update = async (data) => {
+    const { id, ...rest } = data;
+    const room = await RoomModel.findByIdAndUpdate(id, rest, { new: true });
+
+    return room;
   };
 }
 

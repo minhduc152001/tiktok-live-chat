@@ -56,6 +56,11 @@ class LiveService {
         console.log("Error when adding new chat", error);
       }
     });
+
+    tiktokConnectionWrapper.connection.on(
+      "streamEnd",
+      async () => await RoomService.update({ id: newRoom._id, isLive: false })
+    );
   };
 }
 
