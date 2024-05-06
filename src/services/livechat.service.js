@@ -16,7 +16,7 @@ class LiveService {
     try {
       setInterval(() => {
         tiktokConnectionWrapper.connect();
-      }, 5000);
+      }, 1000);
     } catch (err) {
       console.error("tiktokDisconnected", err.toString());
       return;
