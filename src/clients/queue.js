@@ -1,6 +1,6 @@
 const Queue = require("bull");
 const { startTrackLive } = require("../services/livechat.service");
-const { UserService } = require("../services/user.service");
+const UserService = require("../services/user.service");
 
 const REDIS_HOST = process.env.REDIS_HOST;
 const REDIS_PORT = process.env.REDIS_PORT;
@@ -55,7 +55,12 @@ allJobsQueue.process(async () => {
 });
 
 const runQueue = () => {
-  allJobsQueue.add({});
+  allJobsQueue.add(
+    {}
+    // {
+    //   repeat: { cron: "0 2 * * *" },
+    // }
+  );
 };
 
 module.exports = { jobQueue, runQueue };

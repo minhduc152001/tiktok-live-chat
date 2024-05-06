@@ -63,7 +63,7 @@ class TikTokConnectionWrapper extends EventEmitter {
 
         // Notify client
         if (!isReconnect) {
-          this.emit("connected", state);
+          // this.emit("connected", state);
         }
       })
       .catch((err) => {
@@ -74,7 +74,7 @@ class TikTokConnectionWrapper extends EventEmitter {
           this.scheduleReconnect(err);
         } else {
           // Notify client
-          this.emit("disconnected", err.toString());
+          // this.emit("disconnected", err.toString());
         }
       });
   }
@@ -86,7 +86,7 @@ class TikTokConnectionWrapper extends EventEmitter {
 
     if (this.reconnectCount >= this.maxReconnectAttempts) {
       this.log(`Give up connection, max reconnect attempts exceeded`);
-      this.emit("disconnected", `Connection lost. ${reason}`);
+      // this.emit("disconnected", `Connection lost. ${reason}`);
       return;
     }
 
