@@ -36,7 +36,7 @@ class LiveService {
           .catch((error) => {
             console.log(`Connection failed @${tiktokId}, ${error}`);
           });
-      }, 5000);
+      }, 11000);
     } catch (err) {
       console.error("tiktokDisconnected", err.toString());
       return;
