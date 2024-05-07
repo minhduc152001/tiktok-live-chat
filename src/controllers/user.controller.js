@@ -31,7 +31,7 @@ exports.startTrackingLive = catchAsync(async (req, res, next) => {
     user.tiktokIds.map(async ({ tiktokId }) => {
       const job = await jobQueue.add({
         tiktokId,
-        userId: this._id,
+        userId,
       });
 
       return {
