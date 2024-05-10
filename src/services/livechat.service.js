@@ -1,12 +1,20 @@
-const { jobQueue } = require("../clients/queue");
 const ChatService = require("./chat.service");
 const RoomService = require("./room.service");
 const { WebcastPushConnection } = require("tiktok-live-connector");
 const UserService = require("./user.service");
+const { addJob } = require("../utils/addJob");
 
 class LiveService {
-  static startTrackLive = async (tiktokId, userId) => {
+  static startTrackLive = async ({ tiktokId, userId, jobId }) => {
+    // Create live connector
     const tiktokLiveConnection = new WebcastPushConnection(tiktokId);
+
+    // Update job ID
+    await UserService.updateJobIdForTiktokId({
+      userId,
+      tiktokId,
+      jobId,
+    });
 
     let newRoom = undefined;
 
@@ -50,7 +58,7 @@ class LiveService {
                   `@${tiktokId}: Stopped interval, creating new job...`
                 );
 
-                const job = await jobQueue.add({
+                const job = await addJob({
                   tiktokId,
                   userId,
                 });

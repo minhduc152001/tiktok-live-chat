@@ -132,7 +132,7 @@ io.on("connection", (socket) => {
 });
 
 // Start run queue
-// runQueue();
+runQueue();
 
 // ROUTES
 app.use("/api/v1/users", userRouter);

@@ -21,7 +21,7 @@ jobQueue.process(async (job) => {
   const { tiktokId, userId } = job.data;
 
   // Start listening livestream
-  await startTrackLive(tiktokId, userId);
+  await startTrackLive({ tiktokId, userId, jobId: job.id });
 });
 
 // Process all queues
@@ -31,36 +31,18 @@ allJobsQueue.process(async () => {
 
   const userWithTiktokIds = users.filter((user) => user.tiktokIds.length > 0);
 
-  // Add single job queue for all users
-  await Promise.all(
-    userWithTiktokIds.map(async (user) => {
-      const tiktokIds = await Promise.all(
-        user.tiktokIds.map(async ({ tiktokId }) => {
-          const { id: jobId } = await jobQueue.add({
-            tiktokId,
-            userId: user._id,
-          });
-
-          return {
-            tiktokId,
-            jobId,
-          };
-        })
-      );
-
-      // Update job id for each user
-      await UserService.updateTiktokIdsArray(user._id, tiktokIds);
-    })
-  );
+  userWithTiktokIds.map((user) => {
+    user.tiktokIds.map(({ tiktokId }) =>
+      jobQueue.add({
+        tiktokId,
+        userId: user._id,
+      })
+    );
+  });
 });
 
 const runQueue = () => {
-  allJobsQueue.add(
-    {}
-    // {
-    //   repeat: { cron: "0 2 * * *" },
-    // }
-  );
+  allJobsQueue.add({});
 };
 
 module.exports = { jobQueue, runQueue };
