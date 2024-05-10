@@ -16,6 +16,25 @@ class UserService {
 
     return users;
   };
+
+  static updateJobIdForTiktokId = async ({ userId, tiktokId, jobId }) => {
+    const user = await UserModel.findOneAndUpdate(
+      {
+        _id: userId,
+        "tiktokIds.tiktokId": tiktokId,
+      },
+      {
+        $set: {
+          "tiktokIds.$.jobId": jobId,
+        },
+      },
+      {
+        new: true,
+      }
+    );
+
+    return user;
+  };
 }
 
 module.exports = UserService;
