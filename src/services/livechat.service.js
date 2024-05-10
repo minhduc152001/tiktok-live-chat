@@ -1,16 +1,28 @@
 const ChatService = require("./chat.service");
 const RoomService = require("./room.service");
 const { WebcastPushConnection } = require("tiktok-live-connector");
+const UserService = require("./user.service");
+const { addJob } = require("../utils/addJob");
 
 class LiveService {
-  static startTrackLive = async (tiktokId, userId) => {
+  static startTrackLive = async ({ tiktokId, userId, jobId }) => {
+    // Create live connector
     const tiktokLiveConnection = new WebcastPushConnection(tiktokId);
+
+    // Update job ID
+    await UserService.updateJobIdForTiktokId({
+      userId,
+      tiktokId,
+      jobId,
+    });
 
     let newRoom = undefined;
 
     // Connect to the given username (uniqueId)
     try {
-      setInterval(async () => {
+      let countAlreadyConnectingError = 0;
+
+      const intervalId = setInterval(async () => {
         tiktokLiveConnection
           .connect()
           .then(async (state) => {
@@ -33,8 +45,32 @@ class LiveService {
               roomCreateTime
             );
           })
-          .catch((error) => {
+          .catch(async (error) => {
             console.log(`Connection failed @${tiktokId}, ${error}`);
+
+            if (error === "Already connecting!") {
+              countAlreadyConnectingError++;
+
+              if (countAlreadyConnectingError > 10) {
+                clearInterval(intervalId);
+
+                console.log(
+                  `@${tiktokId}: Stopped interval, creating new job...`
+                );
+
+                const job = await addJob({
+                  tiktokId,
+                  userId,
+                });
+
+                // Update job ID
+                await UserService.updateJobIdForTiktokId({
+                  userId,
+                  tiktokId,
+                  jobId: job.id,
+                });
+              }
+            }
           });
       }, 11000);
     } catch (err) {

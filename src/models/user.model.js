@@ -3,7 +3,7 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const { randomUUID } = require("crypto");
 const { isVietnamesePhoneNumberValid } = require("../utils/checkValidPhone");
-const { jobQueue } = require("../clients/queue");
+const { addJob } = require("../utils/addJob");
 
 const userSchema = new mongoose.Schema(
   {
@@ -76,7 +76,7 @@ userSchema.pre("save", async function (next) {
 
   const newTiktokIdsArr = await Promise.all(
     this.tiktokIds.map(async ({ tiktokId }) => {
-      const job = await jobQueue.add({
+      const job = await addJob({
         tiktokId,
         userId: this._id,
       });
