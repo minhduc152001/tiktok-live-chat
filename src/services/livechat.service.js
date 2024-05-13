@@ -71,6 +71,26 @@ class LiveService {
                 });
               }
             }
+
+            if (error.includes("display_id")) {
+              clearInterval(intervalId);
+
+              console.log(
+                `@${tiktokId}: Stopped interval, creating new job...`
+              );
+
+              const job = await addJob({
+                tiktokId,
+                userId,
+              });
+
+              // Update job ID
+              await UserService.updateJobIdForTiktokId({
+                userId,
+                tiktokId,
+                jobId: job.id,
+              });
+            }
           });
       }, 11000);
     } catch (err) {
