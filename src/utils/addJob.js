@@ -1,7 +1,5 @@
-const { jobQueue } = require("../clients/queue");
-
-const addJob = ({ tiktokId, userId }) =>
-  jobQueue.add({
+const addJob = async ({ tiktokId, userId }) =>
+  await jobQueue.add({
     tiktokId,
     userId,
   });
