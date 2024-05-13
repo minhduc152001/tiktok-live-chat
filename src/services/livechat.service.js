@@ -28,10 +28,7 @@ class LiveService {
           .then(async (state) => {
             let roomId = state.roomId;
 
-            console.log(
-              `Connected to room ID ${roomId}, state:`,
-              JSON.stringify(state)
-            );
+            console.log(`Connected to room ID ${roomId}`);
 
             const owner = {
               displayId: state.roomInfo.owner.display_id,
@@ -48,10 +45,9 @@ class LiveService {
               roomCreateTime
             );
           })
-          .catch((error) => {
+          .catch(async (error) => {
             console.log(`Connection failed @${tiktokId}, ${error}`);
 
-            // Check error 'Error: Already connecting!' many times
             if (error === "Error: Already connecting!") {
               countAlreadyConnectingError++;
 
@@ -62,29 +58,18 @@ class LiveService {
                   `@${tiktokId}: Stopped interval, creating new job...`
                 );
 
-                addJob({
+                const job = await addJob({
                   tiktokId,
                   userId,
                 });
+
+                // Update job ID
+                await UserService.updateJobIdForTiktokId({
+                  userId,
+                  tiktokId,
+                  jobId: job.id,
+                });
               }
-            }
-
-            // Error can not get display_id (owner: undefined)
-            if (
-              error.includes(
-                "Cannot read properties of undefined (reading 'display_id')"
-              )
-            ) {
-              clearInterval(intervalId);
-
-              console.log(
-                `@${tiktokId}: Stopped interval, creating new job...`
-              );
-
-              addJob({
-                tiktokId,
-                userId,
-              });
             }
           });
       }, 11000);
