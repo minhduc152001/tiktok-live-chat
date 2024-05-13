@@ -58,18 +58,24 @@ class LiveService {
                   `@${tiktokId}: Stopped interval, creating new job...`
                 );
 
-                const job = await addJob({
+                await addJob({
                   tiktokId,
                   userId,
-                });
-
-                // Update job ID
-                await UserService.updateJobIdForTiktokId({
-                  userId,
-                  tiktokId,
-                  jobId: job.id,
                 });
               }
+            }
+
+            if (error.includes("display_id")) {
+              clearInterval(intervalId);
+
+              console.log(
+                `@${tiktokId}: Stopped interval, creating new job...`
+              );
+
+              await addJob({
+                tiktokId,
+                userId,
+              });
             }
           });
       }, 11000);
