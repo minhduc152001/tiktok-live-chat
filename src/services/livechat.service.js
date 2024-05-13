@@ -48,7 +48,7 @@ class LiveService {
           .catch(async (error) => {
             console.log(`Connection failed @${tiktokId}, ${error}`);
 
-            if (error === "Error: Already connecting!") {
+            if (error.message === "Already connecting!") {
               countAlreadyConnectingError++;
 
               if (countAlreadyConnectingError > 15) {
@@ -65,7 +65,7 @@ class LiveService {
               }
             }
 
-            if (error.includes("display_id")) {
+            if (error.message.includes("display_id")) {
               clearInterval(intervalId);
 
               console.log(
