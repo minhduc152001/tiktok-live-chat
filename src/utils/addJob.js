@@ -1,4 +1,4 @@
-const addJob = async ({ tiktokId, userId }) =>
+const addJob = async (jobQueue, { tiktokId, userId }) =>
   await jobQueue.add({
     tiktokId,
     userId,
