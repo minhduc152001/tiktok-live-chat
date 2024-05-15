@@ -15,7 +15,9 @@ const userRouter = require("./routers/user.routes");
 const orderRouter = require("./routers/order.routes");
 const roomRouter = require("./routers/room.routes");
 const chatRouter = require("./routers/chat.routes");
-const { runQueue } = require("./clients/queue");
+const { runQueue, processJobQueue, jobQueue } = require("./clients/queue");
+const LiveService = require("./services/livechat.service");
+const { addJob } = require("./utils/addJob");
 const app = express();
 const httpServer = createServer(app);
 
@@ -131,7 +133,10 @@ io.on("connection", (socket) => {
   });
 });
 
-// Start run queue
+// Initialize the processJobQueue with the startTrackLive function
+processJobQueue(LiveService.startTrackLive(addJob(jobQueue)));
+
+// Start the queue processing
 runQueue();
 
 // ROUTES
