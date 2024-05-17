@@ -63,10 +63,12 @@ class LiveService {
                 clearInterval(intervalId);
 
                 console.log(
-                  `@${tiktokId}: Stopped interval, creating new job...`
+                  `@${tiktokId}: Stopped interval, creating new job in 11m...`
                 );
 
-                await addJob({ tiktokId, userId });
+                setTimeout(async () => {
+                  await addJob({ tiktokId, userId });
+                }, 11 * 60 * 1000);
               }
             });
         }, 11000);
