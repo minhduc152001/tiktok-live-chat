@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "description": "TikTok livestream - C Phương, Tuấn Anh",
   "main": "index.js",
-  "proxy": "http://localhost:5000",
+  "proxy": "http://localhost:4000",
   "scripts": {
     "dev": "nodemon src/index.js",
     "prod": "node src/index.js"
@@ -22,7 +22,7 @@
     "mongoose": "^8.3.1",
     "morgan": "^1.10.0",
     "socket.io": "^4.7.5",
-    "tiktok-live-connector": "^1.1.5",
+    "tiktok-live-connector": "^1.1.7",
     "util": "^0.12.5",
     "validator": "^13.11.0"
   }

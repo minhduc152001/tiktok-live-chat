@@ -13,14 +13,16 @@ class LiveService {
 
       let newRoom = undefined;
 
-      try {
-        let countAlreadyConnectingError = 0;
+      let countAlreadyConnectingError = 0;
 
-        const intervalId = setInterval(async () => {
+      const intervalId = setInterval(async () => {
+        try {
+          const roomInfo = await tiktokLiveConnection.getRoomInfo();
+
           tiktokLiveConnection
             .connect()
             .then(async (state) => {
-              let roomId = state.roomId;
+              let roomId = roomInfo.id_str;
 
               console.log(
                 `Connected to room ID ${roomId}, state:`,
@@ -28,11 +30,11 @@ class LiveService {
               );
 
               const owner = {
-                displayId: state.roomInfo.owner.display_id,
-                nickname: state.roomInfo.owner.nickname,
+                displayId: roomInfo.owner.display_id,
+                nickname: roomInfo.owner.nickname,
               };
 
-              const { create_time: roomCreateTime, title } = state.roomInfo;
+              const { create_time: roomCreateTime, title } = roomInfo;
 
               newRoom = await RoomService.add(
                 userId,
@@ -45,13 +47,26 @@ class LiveService {
             .catch(async (error) => {
               console.log(`Connection failed @${tiktokId}, ${error}`);
 
+              const { create_time: createTime, finish_time: finishTime } =
+                roomInfo;
+              if (
+                createTime !== finishTime &&
+                error.message === "Already connected!"
+              ) {
+                console.info("Live has ENDED, creating new job in 1 minute...");
+
+                setTimeout(async () => {
+                  await addJob({ tiktokId, userId });
+                }, 60 * 1000);
+              }
+
               if (error.message === "Already connecting!") {
                 countAlreadyConnectingError++;
 
                 if (countAlreadyConnectingError > 15) {
                   clearInterval(intervalId);
 
-                  console.log(
+                  console.info(
                     `@${tiktokId}: Stopped interval, creating new job...`
                   );
 
@@ -59,49 +74,26 @@ class LiveService {
                 }
               }
 
-              if (error.message.includes("display_id")) {
-                clearInterval(intervalId);
+              // if (error.message.includes("display_id")) {
+              //   clearInterval(intervalId);
 
-                console.log(
-                  `@${tiktokId}: Stopped interval, creating new job in 11m...`
-                );
+              //   console.log(
+              //     `@${tiktokId}: 🫥 Starting handle error display_id...`
+              //   );
 
-                setTimeout(async () => {
-                  await addJob({ tiktokId, userId });
-                }, 11 * 60 * 1000);
-              }
+              // setTimeout(async () => {
+              //   await addJob({ tiktokId, userId });
+              // }, 11 * 60 * 1000);
+              // }
             });
-        }, 11000);
-      } catch (err) {
-        console.error("tiktokDisconnected", err.toString());
-        return;
-      }
+        } catch (err) {
+          console.log(`getRoomInfo failed @${tiktokId}, ${err.message}`);
+          return;
+        }
+      }, 11000);
 
       tiktokLiveConnection.on("connected", async (state) => {
-        let roomId;
-
-        try {
-          const owner = {
-            displayId: state.roomInfo.owner.display_id,
-            nickname: state.roomInfo.owner.nickname,
-          };
-
-          roomId = state.roomId;
-
-          const { create_time: roomCreateTime, title } = state.roomInfo;
-
-          newRoom = await RoomService.add(
-            userId,
-            roomId,
-            owner,
-            title,
-            roomCreateTime
-          );
-        } catch (error) {
-          console.error("Error when storing new room:", error);
-
-          newRoom = await RoomService.get(roomId);
-        }
+        newRoom = await RoomService.get(state.roomId);
       });
 
       tiktokLiveConnection.on("chat", async (msg) => {
