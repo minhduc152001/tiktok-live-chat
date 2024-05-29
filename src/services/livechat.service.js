@@ -53,11 +53,16 @@ class LiveService {
                 createTime !== finishTime &&
                 error.message === "Already connected!"
               ) {
-                console.info("Live has ENDED, creating new job in 1 minute...");
+                // await RoomService.update({ id: newRoom._id, isLive: false });
 
-                setTimeout(async () => {
-                  await addJob({ tiktokId, userId });
-                }, 60 * 1000);
+                console.log(
+                  "👀 Live's online but start and end time are not same, roomInfo:",
+                  JSON.stringify(roomInfo)
+                );
+
+                // setTimeout(async () => {
+                //   await addJob({ tiktokId, userId });
+                // }, 60 * 1000);
               }
 
               if (error.message === "Already connecting!") {
@@ -93,7 +98,27 @@ class LiveService {
       }, 11000);
 
       tiktokLiveConnection.on("connected", async (state) => {
-        newRoom = await RoomService.get(state.roomId);
+        let roomId;
+        try {
+          const owner = {
+            displayId: state.roomInfo.owner.display_id,
+            nickname: state.roomInfo.owner.nickname,
+          };
+
+          roomId = state.roomId;
+          const { create_time: roomCreateTime, title } = state.roomInfo;
+
+          newRoom = await RoomService.add(
+            userId,
+            roomId,
+            owner,
+            title,
+            roomCreateTime
+          );
+        } catch (error) {
+          console.error("Error when storing new room:", error);
+          newRoom = await RoomService.get(roomId);
+        }
       });
 
       tiktokLiveConnection.on("chat", async (msg) => {

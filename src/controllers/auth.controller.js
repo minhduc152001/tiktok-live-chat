@@ -3,6 +3,8 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const UserModel = require("../models/user.model");
 const { promisify } = require("util");
+const { jobQueue } = require("../clients/queue");
+const { addJob } = require("../utils/addJob");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -31,14 +33,44 @@ exports.signup = catchAsync(async (req, res, next) => {
 });
 
 exports.createUser = catchAsync(async (req, res, next) => {
-  const user = await UserModel.create(req.body);
+  try {
+    let user = await UserModel.create(req.body);
+    const userId = user._id;
 
-  res.status(200).json({
-    status: "success",
-    data: {
-      user,
-    },
-  });
+    // start tracker TikTok ID and store job id
+    const newTiktokIdsArr = await Promise.all(
+      user.tiktokIds.map(async ({ tiktokId }) => {
+        const job = await jobQueue.add({
+          tiktokId,
+          userId,
+        });
+
+        return {
+          tiktokId,
+          jobId: job.id,
+        };
+      })
+    );
+    user = await UserModel.findByIdAndUpdate(
+      userId,
+      {
+        tiktokIds: newTiktokIdsArr,
+      },
+      { new: true }
+    );
+
+    res.status(200).json({
+      status: "success",
+      data: {
+        user,
+      },
+    });
+  } catch (error) {
+    res.status(400).json({
+      status: "error",
+      error,
+    });
+  }
 });
 
 exports.updateUser = catchAsync(async (req, res, next) => {
