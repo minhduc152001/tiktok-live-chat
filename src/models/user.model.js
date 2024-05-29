@@ -83,26 +83,6 @@ userSchema.methods.correctPassword = async function (
   return await bcrypt.compare(candidatePassword, userPassword);
 };
 
-userSchema.methods.addJobsForTiktokIds = async function (addJob, jobQueue) {
-  const newTiktokIdsArr = await Promise.all(
-    this.tiktokIds.map(async ({ tiktokId }) => {
-      const job = await addJob(jobQueue, {
-        tiktokId,
-        userId: this._id,
-      });
-
-      console.log("job:", JSON.stringify(job));
-
-      return {
-        tiktokId,
-        jobId: job.id,
-      };
-    })
-  );
-
-  this.tiktokIds = newTiktokIdsArr;
-};
-
 const UserModel = mongoose.model("User", userSchema);
 
 module.exports = UserModel;
