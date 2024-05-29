@@ -58,19 +58,15 @@ class LiveService {
                   "👀 Live's online but start and end time are not same..."
                 );
 
-                await RoomService.update({ id: newRoom._id, isLive: false });
+                await RoomService.update({ id: newRoom?._id, isLive: false });
 
                 clearInterval(intervalId);
 
-                console.info(
-                  `@${tiktokId}: Stopped interval, creating new job...`
-                );
+                console.info(`@${tiktokId}: Stopped, new job in 11 minute...`);
 
-                await addJob({ tiktokId, userId });
-
-                // setTimeout(async () => {
-                //   await addJob({ tiktokId, userId });
-                // }, 60 * 1000);
+                setTimeout(async () => {
+                  await addJob({ tiktokId, userId });
+                }, 11 * 60 * 1000);
               } else if (error.message === "Already connecting!") {
                 countAlreadyConnectingError++;
 
