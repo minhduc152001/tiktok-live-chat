@@ -3,7 +3,6 @@ const validator = require("validator");
 const bcrypt = require("bcrypt");
 const { randomUUID } = require("crypto");
 const { isVietnamesePhoneNumberValid } = require("../utils/checkValidPhone");
-const { addJob } = require("../utils/addJob");
 
 const userSchema = new mongoose.Schema(
   {
@@ -74,21 +73,6 @@ userSchema.pre("save", async function (next) {
   // Hash this password with cost of 12 (16 is much longer)
   this.password = await bcrypt.hash(this.password, 12);
 
-  const newTiktokIdsArr = await Promise.all(
-    this.tiktokIds.map(async ({ tiktokId }) => {
-      const job = await addJob({
-        tiktokId,
-        userId: this._id,
-      });
-
-      return {
-        tiktokId,
-        jobId: job.id,
-      };
-    })
-  );
-
-  this.tiktokIds = newTiktokIdsArr;
   next();
 });
 
