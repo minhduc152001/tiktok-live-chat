@@ -3,8 +3,8 @@ module.exports = {
     {
       name: "tiktok-live-chat",
       script: "src/index.js",
-      out_file: "./logs/combined.log", // Custom path for standard output log
-      error_file: "./logs/combined.log", // Custom path for error log
+      out_file: "./logs/2024-05-29.log", // Custom path for standard output log
+      error_file: "./logs/2024-05-29.log", // Custom path for error log
       log_date_format: "YYYY-MM-DD HH:mm:ss", // Timestamp format for each log entry
     },
   ],
