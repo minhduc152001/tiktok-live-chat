@@ -49,26 +49,32 @@ class LiveService {
 
               const { create_time: createTime, finish_time: finishTime } =
                 roomInfo;
+
               if (
                 createTime !== finishTime &&
                 error.message === "Already connected!"
               ) {
-                // await RoomService.update({ id: newRoom._id, isLive: false });
-
                 console.log(
-                  "👀 Live's online but start and end time are not same, roomInfo:",
-                  JSON.stringify(roomInfo)
+                  "👀 Live's online but start and end time are not same..."
                 );
+
+                await RoomService.update({ id: newRoom._id, isLive: false });
+
+                clearInterval(intervalId);
+
+                console.info(
+                  `@${tiktokId}: Stopped interval, creating new job...`
+                );
+
+                await addJob({ tiktokId, userId });
 
                 // setTimeout(async () => {
                 //   await addJob({ tiktokId, userId });
                 // }, 60 * 1000);
-              }
-
-              if (error.message === "Already connecting!") {
+              } else if (error.message === "Already connecting!") {
                 countAlreadyConnectingError++;
 
-                if (countAlreadyConnectingError > 15) {
+                if (countAlreadyConnectingError > 25) {
                   clearInterval(intervalId);
 
                   console.info(
@@ -77,19 +83,17 @@ class LiveService {
 
                   await addJob({ tiktokId, userId });
                 }
+              } else if (error.message.includes("status code 429")) {
+                clearInterval(intervalId);
+
+                console.log(
+                  `@${tiktokId}: 🫥 Starting handle error 429, start job after 11m...`
+                );
+
+                setTimeout(async () => {
+                  await addJob({ tiktokId, userId });
+                }, 11 * 60 * 1000);
               }
-
-              // if (error.message.includes("display_id")) {
-              //   clearInterval(intervalId);
-
-              //   console.log(
-              //     `@${tiktokId}: 🫥 Starting handle error display_id...`
-              //   );
-
-              // setTimeout(async () => {
-              //   await addJob({ tiktokId, userId });
-              // }, 11 * 60 * 1000);
-              // }
             });
         } catch (err) {
           console.log(`getRoomInfo failed @${tiktokId}, ${err.message}`);
