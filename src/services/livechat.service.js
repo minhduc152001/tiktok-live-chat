@@ -5,7 +5,7 @@ const UserService = require("./user.service");
 
 class LiveService {
   static startTrackLive =
-    (addJob) =>
+    (addJob, jobIntervals) =>
     async ({ tiktokId, userId, jobId }) => {
       let tiktokLiveConnection = new WebcastPushConnection(tiktokId);
 
@@ -16,6 +16,8 @@ class LiveService {
       let countAlreadyConnectingError = 0;
 
       const intervalId = setInterval(async () => {
+        jobIntervals[jobId] = intervalId;
+
         try {
           const roomInfo = await tiktokLiveConnection.getRoomInfo();
 

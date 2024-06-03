@@ -3,8 +3,7 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const UserModel = require("../models/user.model");
 const { promisify } = require("util");
-const { jobQueue } = require("../clients/queue");
-const { addJob } = require("../utils/addJob");
+const { jobQueue, removeJob } = require("../clients/queue");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -75,6 +74,29 @@ exports.createUser = catchAsync(async (req, res, next) => {
 
 exports.updateUser = catchAsync(async (req, res, next) => {
   const { userId, ...data } = req.body;
+
+  if (!!data.tiktokIds) {
+    const currentTiktokIdObject = (await UserModel.findById(userId)).tiktokIds;
+
+    await Promise.all(
+      currentTiktokIdObject.map(async ({ jobId }) => await removeJob(jobId))
+    );
+    const newTiktokIds = await Promise.all(
+      data.tiktokIds.map(async ({ tiktokId }) => {
+        const job = await jobQueue.add({
+          tiktokId,
+          userId,
+        });
+
+        return {
+          tiktokId,
+          jobId: job.id,
+        };
+      })
+    );
+
+    data.tiktokIds = newTiktokIds;
+  }
 
   const user = await UserModel.findByIdAndUpdate(userId, data, { new: true });
 
