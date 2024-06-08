@@ -29,7 +29,7 @@ class LiveService {
               let roomId = roomInfo.id_str;
               isLive = true;
 
-              console.log(
+              console.info(
                 `Connected to room ID ${roomId}, state:`,
                 JSON.stringify(state)
               );
@@ -50,7 +50,7 @@ class LiveService {
               );
             })
             .catch(async (error) => {
-              console.log(`Connection failed @${tiktokId}, ${error}`);
+              console.info(`Connection failed @${tiktokId}, ${error}`);
 
               const { create_time: createTime, finish_time: finishTime } =
                 roomInfo;
@@ -59,7 +59,7 @@ class LiveService {
                 createTime !== finishTime &&
                 error.message === "Already connected!"
               ) {
-                console.log(
+                console.info(
                   "👀 Live's online but start and end time are not same..."
                 );
 
@@ -87,7 +87,7 @@ class LiveService {
               } else if (error.message.includes("status code 429")) {
                 clearInterval(intervalId);
 
-                console.log(
+                console.info(
                   `@${tiktokId}: 🫥 Starting handle error 429, start job after 11m...`
                 );
 
@@ -97,7 +97,7 @@ class LiveService {
               }
             });
         } catch (err) {
-          console.log(`getRoomInfo failed @${tiktokId}, ${err.message}`);
+          console.info(`getRoomInfo failed @${tiktokId}, ${err.message}`);
           return;
         }
       }, 11000);
@@ -135,7 +135,7 @@ class LiveService {
             liveTiktokId: tiktokId,
           });
         } catch (error) {
-          console.log("Error when adding new chat", error);
+          console.info("Error when adding new chat", error);
         }
       });
 
