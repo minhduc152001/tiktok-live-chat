@@ -15,6 +15,8 @@ class LiveService {
 
       let countAlreadyConnectingError = 0;
 
+      let isLive = false;
+
       const intervalId = setInterval(async () => {
         jobIntervals[jobId] = intervalId;
 
@@ -25,6 +27,7 @@ class LiveService {
             .connect()
             .then(async (state) => {
               let roomId = roomInfo.id_str;
+              isLive = true;
 
               console.log(
                 `Connected to room ID ${roomId}, state:`,
@@ -125,16 +128,30 @@ class LiveService {
 
       tiktokLiveConnection.on("chat", async (msg) => {
         try {
-          await ChatService.add(msg, newRoom._id, userId);
+          await ChatService.add({
+            msg,
+            room: newRoom._id,
+            userId,
+            liveTiktokId: tiktokId,
+          });
         } catch (error) {
           console.log("Error when adding new chat", error);
         }
       });
 
-      tiktokLiveConnection.on(
-        "streamEnd",
-        async () => await RoomService.update({ id: newRoom._id, isLive: false })
-      );
+      tiktokLiveConnection.on("streamEnd", async () => {
+        await RoomService.update({ id: newRoom._id, isLive: false });
+
+        if (isLive) {
+          console.info(`@${tiktokId}: Live ended, stop & create new job!🔋`);
+
+          clearInterval(intervalId);
+
+          setTimeout(async () => {
+            await addJob({ tiktokId, userId });
+          }, 60 * 1000);
+        }
+      });
       tiktokLiveConnection.on("error", (err) => {
         console.error(
           `@${tiktokId} - Error event triggered: ${err.info}, ${err.exception}`

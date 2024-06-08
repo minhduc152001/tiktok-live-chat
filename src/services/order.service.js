@@ -4,30 +4,32 @@ class OrderService {
   static add = async ({ chatId, phone }) => {
     const order = await OrderModel.create({
       chat: chatId,
-      phone,
     });
 
     return order;
   };
 
-  static listByUserId = async (userId) => {
-    const orders = await OrderModel.find()
-      .populate({
-        path: "chat",
-        match: { user: userId },
-      })
-      .exec();
+  static listByUserId = async ({ userId }) => {
+    const orders = (await OrderModel.find()).filter(
+      (order) => order?.chat?.customer?.user == userId
+    );
 
     return orders;
   };
 
-  static listByRoomId = async (roomId) => {
-    const orders = await OrderModel.find()
-      .populate({
-        path: "chat",
-        match: { room: roomId },
-      })
-      .exec();
+  static listByRoomId = async ({ roomId }) => {
+    const orders = (await OrderModel.find()).filter(
+      (order) => order?.chat?.room == roomId
+    );
+
+    return orders;
+  };
+
+  static listByRoomAndCustomerId = async ({ roomId, customerId }) => {
+    const orders = (await OrderModel.find()).filter(
+      (order) =>
+        order?.chat?.room == roomId && order?.chat?.customer?._id == customerId
+    );
 
     return orders;
   };

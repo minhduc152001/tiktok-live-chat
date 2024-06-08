@@ -21,6 +21,7 @@ exports.listOrdersByUserId = catchAsync(async (req, res, next) => {
   res.status(200).json({
     status: "success",
     data: {
+      display: orders.length,
       orders,
     },
   });
@@ -29,11 +30,29 @@ exports.listOrdersByUserId = catchAsync(async (req, res, next) => {
 exports.listOrdersByRoomId = catchAsync(async (req, res, next) => {
   const { roomId } = req.params;
 
-  const orders = await OrderService.listByRoomId(roomId);
+  const orders = await OrderService.listByRoomId({ roomId });
 
   res.status(200).json({
     status: "success",
     data: {
+      display: orders.length,
+      orders,
+    },
+  });
+});
+
+exports.listOrderByRoomAndCustomerId = catchAsync(async (req, res, next) => {
+  const { roomId, customerId } = req.params;
+
+  const orders = await OrderService.listByRoomAndCustomerId({
+    roomId,
+    customerId,
+  });
+
+  res.status(200).json({
+    status: "success",
+    data: {
+      display: orders.length,
       orders,
     },
   });
