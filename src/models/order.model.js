@@ -1,5 +1,4 @@
 const mongoose = require("mongoose");
-const { isVietnamesePhoneNumberValid } = require("../utils/checkValidPhone");
 
 const orderSchema = new mongoose.Schema(
   {
@@ -9,24 +8,22 @@ const orderSchema = new mongoose.Schema(
       unique: true,
       require: [true, "Chat info can not be empty"],
     },
-    phone: {
-      type: String,
-      required: [true, "Phone number can not be empty"],
-      validate: {
-        validator: isVietnamesePhoneNumberValid,
-        message: "Invalid phone number",
-      },
-    },
   },
   {
+    timestamps: true,
     toJSON: true,
     toObject: true,
   }
 );
 
 orderSchema.pre(/^find/, function (next) {
-  this.populate("chat");
-
+  this.populate({
+    path: "chat",
+    populate: {
+      path: "customer",
+      select: "user displayName phone profilePictureUrl tiktokId address", // Specify fields to populate
+    },
+  });
   next();
 });
 

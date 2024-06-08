@@ -15,7 +15,13 @@ const userRouter = require("./routers/user.routes");
 const orderRouter = require("./routers/order.routes");
 const roomRouter = require("./routers/room.routes");
 const chatRouter = require("./routers/chat.routes");
-const { runQueue, processJobQueue, jobQueue, jobIntervals } = require("./clients/queue");
+const customerRouter = require("./routers/customer.routes");
+const {
+  runQueue,
+  processJobQueue,
+  jobQueue,
+  jobIntervals,
+} = require("./clients/queue");
 const LiveService = require("./services/livechat.service");
 const { addJob } = require("./utils/addJob");
 const app = express();
@@ -144,6 +150,7 @@ app.use("/api/v1/users", userRouter);
 app.use("/api/v1/orders", orderRouter);
 app.use("/api/v1/rooms", roomRouter);
 app.use("/api/v1/chats", chatRouter);
+app.use("/api/v1/customers", customerRouter);
 
 // Start http listener
 httpServer.listen(port);

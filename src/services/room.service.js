@@ -23,7 +23,7 @@ class RoomService {
   static list = async (userId) => {
     const rooms = await RoomModel.find({
       user: userId,
-    });
+    }).sort({ _id: -1 });
 
     return rooms;
   };

@@ -6,26 +6,15 @@ const chatSchema = new mongoose.Schema(
       type: mongoose.Types.ObjectId,
       ref: "Room",
       required: [true, "Room info can not be empty"],
+      index: true,
     },
-    user: {
+    customer: {
       type: mongoose.Schema.ObjectId,
-      ref: "User",
-      required: [true, "User ID can not be empty"],
+      ref: "Customer",
     },
     comment: {
       type: String,
       required: [true, "Comment can not be empty"],
-    },
-    viewerId: {
-      type: String,
-      required: [true, "Viewer ID can not be empty"],
-    },
-    viewerUniqueId: {
-      type: String,
-      required: [true, "Viewer unique ID can not be empty"],
-    },
-    nickname: {
-      type: String,
     },
     msgId: {
       type: String,
@@ -41,6 +30,10 @@ const chatSchema = new mongoose.Schema(
     toObject: true,
   }
 );
+
+chatSchema.index({ comment: "text" });
+chatSchema.index({ room: 1 });
+chatSchema.index({ customer: 1 });
 
 const ChatModel = mongoose.model("Chat", chatSchema);
 
