@@ -15,7 +15,7 @@ exports.updateCustomer = catchAsync(async (req, res, next) => {
 exports.listCustomers = catchAsync(async (req, res, next) => {
   const { page, limit } = req.query;
 
-  const customer = await CustomerService.list({
+  const data = await CustomerService.list({
     userId: req.user.id,
     page,
     limit,
@@ -23,9 +23,6 @@ exports.listCustomers = catchAsync(async (req, res, next) => {
 
   res.status(200).json({
     status: "success",
-    data: {
-      display: customer.length,
-      customer,
-    },
+    data,
   });
 });

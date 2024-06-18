@@ -2,8 +2,16 @@ const OrderService = require("../services/order.service");
 const catchAsync = require("../utils/catchAsync");
 
 exports.createOrder = catchAsync(async (req, res, next) => {
-  const { chatId, phone } = req.body;
-  const order = await OrderService.add({ chatId, phone });
+  const {
+    chatId,
+    // roomId,
+    // customerId
+  } = req.body;
+  const order = await OrderService.add({
+    chatId,
+    // roomId,
+    // customerId
+  });
 
   res.status(200).json({
     status: "success",
