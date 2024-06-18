@@ -1,9 +1,11 @@
 const OrderModel = require("../models/order.model");
 
 class OrderService {
-  static add = async ({ chatId, phone }) => {
+  static add = async ({ chatId, roomId, customerId }) => {
     const order = await OrderModel.create({
       chat: chatId,
+      // room: roomId,
+      // customer: customerId,
     });
 
     return order;

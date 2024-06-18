@@ -19,14 +19,21 @@ class CustomerService {
   static list = async ({ userId, page = null, limit = null }) => {
     const offset = (page - 1) * limit;
 
-    const customers = await CustomerModel.find({
+    const query = {
       user: userId,
-    })
+    };
+
+    const totalCount = await CustomerModel.countDocuments(query);
+    const customers = await CustomerModel.find(query)
       .sort({ _id: -1 })
       .limit(limit)
       .skip(offset);
 
-    return customers;
+    return {
+      totalCount,
+      display: customers.length,
+      customers,
+    };
   };
 }
 

@@ -131,11 +131,19 @@ exports.logout = (req, res) => {
 };
 
 exports.getAllUsers = async (req, res) => {
-  const users = await UserModel.find({ role: "user" });
+  const { limit, page } = req.query;
+  const offset = (page - 1) * limit;
+
+  const query = { role: "user" };
+
+  const totalCount = await UserModel.countDocuments(query);
+  const users = await UserModel.find(query).limit(limit).skip(offset);
 
   res.status(200).json({
     status: "success",
     data: {
+      totalCount,
+      display: users.length,
       users,
     },
   });

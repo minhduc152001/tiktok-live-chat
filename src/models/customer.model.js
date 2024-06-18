@@ -50,6 +50,7 @@ const customerSchema = new mongoose.Schema(
 
 customerSchema.index({ user: 1, tiktokUserId: 1 }, { unique: true });
 customerSchema.index({ displayName: "text" });
+customerSchema.index({ user: 1 });
 
 const CustomerModel = mongoose.model("Customer", customerSchema);
 
