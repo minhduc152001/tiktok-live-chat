@@ -4,6 +4,7 @@ const {
   listOrdersByUserId,
   listOrdersByRoomId,
   listOrderByRoomAndCustomerId,
+  listByEachCustomerInRoom,
 } = require("../controllers/order.controller");
 const { protect } = require("../controllers/auth.controller");
 
@@ -17,5 +18,6 @@ router.get(
   protect,
   listOrderByRoomAndCustomerId
 );
+router.get("/:roomId/customers", protect, listByEachCustomerInRoom);
 
 module.exports = router;
