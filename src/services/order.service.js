@@ -1,11 +1,9 @@
 const OrderModel = require("../models/order.model");
 
 class OrderService {
-  static add = async ({ chatId, roomId, customerId }) => {
+  static add = async ({ chatId }) => {
     const order = await OrderModel.create({
       chat: chatId,
-      // room: roomId,
-      // customer: customerId,
     });
 
     return order;
@@ -20,6 +18,14 @@ class OrderService {
   };
 
   static listByRoomId = async ({ roomId }) => {
+    const orders = (await OrderModel.find().lean()).filter(
+      (order) => order?.chat?.room == roomId
+    );
+
+    return orders;
+  };
+
+  static listByEachCustomerInRoom = async ({ roomId }) => {
     const orders = (await OrderModel.find()).filter(
       (order) => order?.chat?.room == roomId
     );

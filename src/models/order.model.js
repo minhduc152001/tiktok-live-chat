@@ -8,18 +8,6 @@ const orderSchema = new mongoose.Schema(
       unique: true,
       require: [true, "Chat info can not be empty"],
     },
-    // room: {
-    //   type: mongoose.Types.ObjectId,
-    //   ref: "Room",
-    //   unique: true,
-    //   require: [true, "Room info can not be empty"],
-    // },
-    // customer: {
-    //   type: mongoose.Types.ObjectId,
-    //   ref: "Customer",
-    //   unique: true,
-    //   require: [true, "Customer info can not be empty"],
-    // },
   },
   {
     timestamps: true,
