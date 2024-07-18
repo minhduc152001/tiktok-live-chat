@@ -23,8 +23,6 @@ class LiveService {
         try {
           const roomInfo = await tiktokLiveConnection.getRoomInfo();
 
-          console.log("roomInfo:", JSON.stringify(roomInfo));
-
           tiktokLiveConnection
             .connect()
             .then(async (state) => {
