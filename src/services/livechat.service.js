@@ -55,7 +55,21 @@ class LiveService {
               const { create_time: createTime, finish_time: finishTime } =
                 roomInfo;
 
-              if (
+              if (!(createTime && finishTime)) {
+                console.info(
+                  "👺 Undefined create and finish time in previous live..."
+                );
+
+                await RoomService.update({ id: newRoom?._id, isLive: false });
+
+                clearInterval(intervalId);
+
+                console.info(`@${tiktokId}: Stopped, new job in 5 minutes...`);
+
+                setTimeout(async () => {
+                  await addJob({ tiktokId, userId });
+                }, 5 * 60 * 1000);
+              } else if (
                 createTime !== finishTime &&
                 error.message === "Already connected!"
               ) {
