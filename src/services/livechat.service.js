@@ -22,21 +22,20 @@ class LiveService {
 
         try {
           const roomInfo = await tiktokLiveConnection.getRoomInfo();
-
           tiktokLiveConnection
             .connect()
             .then(async (state) => {
-              let roomId = roomInfo.id_str;
+              let roomId = roomInfo.id_str || state.roomId;
               isLive = true;
 
               console.info(
-                `Connected to room ID ${roomId}, state:`,
-                JSON.stringify(state)
+                `@${tiktokId} - Connected to room ID ${roomId}, state with roomInfoID:`,
+                state.roomInfo.id
               );
 
               const owner = {
-                displayId: roomInfo.owner.display_id,
-                nickname: roomInfo.owner.nickname,
+                displayId: tiktokId,
+                nickname: roomInfo.owner?.nickname || tiktokId,
               };
 
               const { create_time: roomCreateTime, title } = roomInfo;
@@ -45,8 +44,8 @@ class LiveService {
                 userId,
                 roomId,
                 owner,
-                title,
-                roomCreateTime
+                title || "",
+                roomCreateTime || parseInt(Date.now() / 1000)
               );
             })
             .catch(async (error) => {
@@ -55,21 +54,7 @@ class LiveService {
               const { create_time: createTime, finish_time: finishTime } =
                 roomInfo;
 
-              if (!(createTime && finishTime)) {
-                console.info(
-                  "👺 Undefined create and finish time in previous live..."
-                );
-
-                await RoomService.update({ id: newRoom?._id, isLive: false });
-
-                clearInterval(intervalId);
-
-                console.info(`@${tiktokId}: Stopped, new job in 5 minutes...`);
-
-                setTimeout(async () => {
-                  await addJob({ tiktokId, userId });
-                }, 5 * 60 * 1000);
-              } else if (
+              if (
                 createTime !== finishTime &&
                 error.message === "Already connected!"
               ) {
@@ -120,8 +105,8 @@ class LiveService {
         let roomId;
         try {
           const owner = {
-            displayId: state.roomInfo.owner.display_id,
-            nickname: state.roomInfo.owner.nickname,
+            displayId: tiktokId,
+            nickname: state.roomInfo.owner?.nickname || tiktokId,
           };
 
           roomId = state.roomId;
@@ -131,8 +116,8 @@ class LiveService {
             userId,
             roomId,
             owner,
-            title,
-            roomCreateTime
+            title || "",
+            roomCreateTime || parseInt(Date.now() / 1000)
           );
         } catch (error) {
           console.error("Error when storing new room:", error);
@@ -149,21 +134,25 @@ class LiveService {
             liveTiktokId: tiktokId,
           });
         } catch (error) {
-          console.info("Error when adding new chat", error);
+          console.error("Error when adding new chat", error);
         }
       });
 
       tiktokLiveConnection.on("streamEnd", async () => {
-        await RoomService.update({ id: newRoom._id, isLive: false });
+        try {
+          await RoomService.update({ id: newRoom._id, isLive: false });
 
-        if (isLive) {
-          console.info(`@${tiktokId}: Live ended, stop & create new job!🔋`);
+          if (isLive) {
+            console.info(`@${tiktokId}: Live ended, stop & create new job!🔋`);
 
-          clearInterval(intervalId);
+            clearInterval(intervalId);
 
-          setTimeout(async () => {
-            await addJob({ tiktokId, userId });
-          }, 60 * 1000);
+            setTimeout(async () => {
+              await addJob({ tiktokId, userId });
+            }, 60 * 1000);
+          }
+        } catch (error) {
+          console.error("Error when stream ends", error);
         }
       });
       tiktokLiveConnection.on("error", (err) => {
