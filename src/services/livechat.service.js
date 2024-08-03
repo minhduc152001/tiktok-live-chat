@@ -99,7 +99,7 @@ class LiveService {
           console.info(`getRoomInfo failed @${tiktokId}, ${err.message}`);
           return;
         }
-      }, 11000);
+      }, 30000);
 
       tiktokLiveConnection.on("connected", async (state) => {
         let roomId;
