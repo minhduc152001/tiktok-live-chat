@@ -20,4 +20,7 @@ jobs:
 
       - name: Deploy application
         run: |
-          ssh -o StrictHostKeyChecking=no ubuntu@15.235.167.234 "cd ./app/tiktok-live-chat && git pull origin main && npm i && pm2 restart all"
+          cd ./app/tiktok-live-chat
+          git pull origin main
+          npm i
+          pm2 restart all"
