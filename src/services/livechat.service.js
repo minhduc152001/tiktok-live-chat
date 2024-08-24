@@ -7,11 +7,23 @@ class LiveService {
   static startTrackLive =
     (addJob, jobIntervals) =>
     async ({ tiktokId, userId, jobId }) => {
+      // Define new live connection
       let tiktokLiveConnection = new WebcastPushConnection(tiktokId);
 
+      // Update job ID
       await UserService.updateJobIdForTiktokId({ userId, tiktokId, jobId });
 
-      let newRoom = undefined;
+      // Define room info
+      let newRoom = {
+        userId,
+        roomId: undefined,
+        owner: {
+          displayId: tiktokId,
+          nickname: tiktokId,
+        },
+        title: "",
+        createTime: undefined,
+      };
 
       let countAlreadyConnectingError = 0;
 
@@ -38,15 +50,12 @@ class LiveService {
                 nickname: roomInfo.owner?.nickname || tiktokId,
               };
 
-              const { create_time: roomCreateTime, title } = roomInfo;
+              const { create_time: createTime, title } = roomInfo;
 
-              newRoom = await RoomService.add(
-                userId,
-                roomId,
-                owner,
-                title || "",
-                roomCreateTime || parseInt(Date.now() / 1000)
-              );
+              newRoom.owner = owner;
+              newRoom.roomId = roomId;
+              newRoom.title = title || "";
+              newRoom.createTime = createTime || parseInt(Date.now() / 1000);
             })
             .catch(async (error) => {
               console.info(`Connection failed @${tiktokId}, ${error}`);
@@ -99,7 +108,7 @@ class LiveService {
           console.info(`getRoomInfo failed @${tiktokId}, ${err.message}`);
           return;
         }
-      }, 30000);
+      }, 11000);
 
       tiktokLiveConnection.on("connected", async (state) => {
         let roomId;
@@ -109,16 +118,12 @@ class LiveService {
             nickname: state.roomInfo.owner?.nickname || tiktokId,
           };
 
-          roomId = state.roomId;
-          const { create_time: roomCreateTime, title } = state.roomInfo;
+          const { create_time: createTime, title } = state.roomInfo;
 
-          newRoom = await RoomService.add(
-            userId,
-            roomId,
-            owner,
-            title || "",
-            roomCreateTime || parseInt(Date.now() / 1000)
-          );
+          newRoom.roomId = state.roomId;
+          newRoom.owner = owner;
+          newRoom.title = title || "";
+          newRoom.createTime = createTime || parseInt(Date.now() / 1000);
         } catch (error) {
           console.error("Error when storing new room:", error);
           newRoom = await RoomService.get(roomId);
@@ -127,12 +132,16 @@ class LiveService {
 
       tiktokLiveConnection.on("chat", async (msg) => {
         try {
-          await ChatService.add({
-            msg,
-            room: newRoom._id,
-            userId,
-            liveTiktokId: tiktokId,
-          });
+          if (newRoom.roomId) {
+            newRoom = await RoomService.add(newRoom);
+
+            await ChatService.add({
+              msg,
+              room: newRoom._id,
+              userId,
+              liveTiktokId: tiktokId,
+            });
+          }
         } catch (error) {
           console.error("Error when adding new chat", error);
         }
