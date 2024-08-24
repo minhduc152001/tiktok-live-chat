@@ -1,19 +1,23 @@
 const RoomModel = require("../models/room.model");
 
 class RoomService {
-  static add = async (userId, roomId, owner, title, createTime) => {
-    const data = {
-      user: userId,
-      roomId,
-      owner,
-      title,
-      createTime: new Date(parseInt(createTime) * 1000),
-      isLive: true,
-    };
+  static add = async ({ userId, roomId, owner, title, createTime }) => {
+    try {
+      const data = {
+        user: userId,
+        roomId,
+        owner,
+        title,
+        createTime: new Date(parseInt(createTime) * 1000),
+        isLive: true,
+      };
 
-    const room = await RoomModel.create(data);
+      const room = await RoomModel.create(data);
 
-    return room;
+      return room;
+    } catch (error) {
+      return await this.get(roomId);
+    }
   };
 
   static get = async (roomId) => {
