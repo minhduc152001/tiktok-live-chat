@@ -74,7 +74,7 @@ class ChatService {
       .skip(offset)
       .populate(
         "customer",
-        "displayName phone profilePictureUrl tiktokId address"
+        "tiktokUserId displayName phone profilePictureUrl tiktokId address"
       )
       .lean()
       .exec();
