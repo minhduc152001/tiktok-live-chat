@@ -1,4 +1,5 @@
 const CustomerModel = require("../models/customer.model");
+const { paginateArray } = require("../utils/paginateArray");
 
 class CustomerService {
   static update = async ({ customerId, ...arg }) => {
@@ -34,6 +35,44 @@ class CustomerService {
       display: customers.length,
       customers,
     };
+  };
+
+  static listByAdmin = async ({ page = null, limit = null }) => {
+    const aggregation = [
+      {
+        $sort: {
+          phone: -1,
+        },
+      },
+      {
+        $group: {
+          _id: "$tiktokUserId",
+          document: {
+            $first: "$$ROOT",
+          },
+        },
+      },
+      {
+        $replaceRoot: {
+          newRoot: "$document",
+        },
+      },
+    ];
+    const allCustomers = await CustomerModel.aggregate(aggregation);
+    const customers = paginateArray(allCustomers, +page, +limit);
+
+    return {
+      totalCount: allCustomers.length,
+      display: customers.length,
+      customers,
+    };
+  };
+
+  static findDetailCustomer = async ({ tiktokUserId }) => {
+    const customers = await CustomerModel.find({ tiktokUserId });
+    const detailCustomer = customers.find((cus) => !!cus.phone);
+
+    return detailCustomer || customers[0];
   };
 }
 
