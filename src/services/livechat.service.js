@@ -111,7 +111,7 @@ class LiveService {
       }, 11000);
 
       tiktokLiveConnection.on("connected", async (state) => {
-        let roomId;
+        // let roomId;
         try {
           const owner = {
             displayId: tiktokId,
@@ -126,7 +126,7 @@ class LiveService {
           newRoom.createTime = createTime;
         } catch (error) {
           console.error("Error when storing new room:", error);
-          newRoom = await RoomService.get(roomId);
+          // newRoom = await RoomService.get(roomId);
         }
       });
 
