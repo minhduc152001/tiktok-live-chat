@@ -16,7 +16,7 @@ class RoomService {
 
       return room;
     } catch (error) {
-      if (error.code === 11000) await this.get(roomId);
+      if (error.code === 11000) return await this.get(roomId);
       else
         console.error(`❌ Failed to add new room @${owner.displayId}`, error);
     }
