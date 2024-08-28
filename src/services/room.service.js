@@ -16,7 +16,9 @@ class RoomService {
 
       return room;
     } catch (error) {
-      return await this.get(roomId);
+      if (error.code === 11000) await this.get(roomId);
+      else
+        console.error(`❌ Failed to add new room @${owner.displayId}`, error);
     }
   };
 
@@ -32,11 +34,11 @@ class RoomService {
     return rooms;
   };
 
-  static update = async (data) => {
-    const { id, ...rest } = data;
-    const room = await RoomModel.findByIdAndUpdate(id, rest, { new: true });
-
-    return room;
+  static updateLiveEnds = async (displayId) => {
+    await RoomModel.updateMany(
+      { "owner.displayId": displayId },
+      { isLive: false }
+    );
   };
 }
 
