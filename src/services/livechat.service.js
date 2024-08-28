@@ -133,10 +133,11 @@ class LiveService {
       tiktokLiveConnection.on("chat", async (msg) => {
         try {
           if (newRoom.roomId) {
-            newRoom = await RoomService.add({
-              ...newRoom,
-              createTime: newRoom.createTime || parseInt(Date.now() / 1000),
-            });
+            if (!newRoom?._id)
+              newRoom = await RoomService.add({
+                ...newRoom,
+                createTime: newRoom.createTime || parseInt(Date.now() / 1000),
+              });
 
             await ChatService.add({
               msg,

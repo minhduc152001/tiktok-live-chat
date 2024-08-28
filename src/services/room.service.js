@@ -17,13 +17,12 @@ class RoomService {
       return room;
     } catch (error) {
       if (error.code === 11000) return await this.get(roomId);
-      else
-        console.error(`❌ Failed to add new room @${owner.displayId}`, error);
     }
   };
 
   static get = async (roomId) => {
-    return await RoomModel.findOne({ roomId });
+    const room = await RoomModel.findOne({ roomId });
+    return room;
   };
 
   static list = async (userId) => {
