@@ -22,7 +22,6 @@ class RoomService {
 
   static get = async (roomId) => {
     const room = await RoomModel.findOne({ roomId });
-    console.log("room:", room);
     return room;
   };
 
