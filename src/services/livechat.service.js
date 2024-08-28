@@ -55,7 +55,7 @@ class LiveService {
               newRoom.owner = owner;
               newRoom.roomId = roomId;
               newRoom.title = title || "";
-              newRoom.createTime = createTime || parseInt(Date.now() / 1000);
+              newRoom.createTime = createTime;
             })
             .catch(async (error) => {
               console.info(`Connection failed @${tiktokId}, ${error}`);
@@ -71,7 +71,7 @@ class LiveService {
                   "👀 Live's online but start and end time are not same..."
                 );
 
-                await RoomService.update({ id: newRoom?._id, isLive: false });
+                await RoomService.updateLiveEnds(tiktokId);
 
                 clearInterval(intervalId);
 
@@ -123,7 +123,7 @@ class LiveService {
           newRoom.roomId = state.roomId;
           newRoom.owner = owner;
           newRoom.title = title || "";
-          newRoom.createTime = createTime || parseInt(Date.now() / 1000);
+          newRoom.createTime = createTime;
         } catch (error) {
           console.error("Error when storing new room:", error);
           newRoom = await RoomService.get(roomId);
@@ -133,7 +133,10 @@ class LiveService {
       tiktokLiveConnection.on("chat", async (msg) => {
         try {
           if (newRoom.roomId) {
-            newRoom = await RoomService.add(newRoom);
+            newRoom = await RoomService.add({
+              ...newRoom,
+              createTime: newRoom.createTime || parseInt(Date.now() / 1000),
+            });
 
             await ChatService.add({
               msg,
@@ -149,7 +152,7 @@ class LiveService {
 
       tiktokLiveConnection.on("streamEnd", async () => {
         try {
-          await RoomService.update({ id: newRoom._id, isLive: false });
+          await RoomService.updateLiveEnds(tiktokId);
 
           if (isLive) {
             console.info(`@${tiktokId}: Live ended, stop & create new job!🔋`);
