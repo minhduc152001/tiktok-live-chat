@@ -3,6 +3,14 @@ const RoomService = require("./room.service");
 const { WebcastPushConnection } = require("tiktok-live-connector");
 const UserService = require("./user.service");
 
+const tiktokIdsCheck = [
+  "sam_vintage3",
+  "vua.m",
+  "seen.vintages",
+  "kho.s.nha.trang.v",
+  "kimloanvintage88",
+];
+
 class LiveService {
   static startTrackLive =
     (addJob, jobIntervals) =>
@@ -56,9 +64,12 @@ class LiveService {
               newRoom.roomId = roomId;
               newRoom.title = title || "";
               newRoom.createTime = createTime;
+
+              if (tiktokIdsCheck.includes(tiktokId))
+                console.info(`@${tiktokId} in connect():`, newRoom);
             })
             .catch(async (error) => {
-              console.info(`Connection failed @${tiktokId}, ${error}`);
+              // console.info(`Connection failed @${tiktokId}, ${error}`);
 
               const { create_time: createTime, finish_time: finishTime } =
                 roomInfo;
@@ -124,6 +135,9 @@ class LiveService {
           newRoom.owner = owner;
           newRoom.title = title || "";
           newRoom.createTime = createTime;
+
+          if (tiktokIdsCheck.includes(tiktokId))
+            console.info(`@${tiktokId} on connected:`, newRoom);
         } catch (error) {
           console.error("Error when storing new room:", error);
           newRoom = await RoomService.get(roomId);
@@ -131,6 +145,9 @@ class LiveService {
       });
 
       tiktokLiveConnection.on("chat", async (msg) => {
+        if (tiktokIdsCheck.includes(tiktokId))
+          console.info(`@${tiktokId} before chat:`, newRoom);
+
         try {
           if (newRoom.roomId) {
             if (!newRoom?._id)
@@ -138,6 +155,9 @@ class LiveService {
                 ...newRoom,
                 createTime: newRoom.createTime || parseInt(Date.now() / 1000),
               });
+
+            if (tiktokIdsCheck.includes(tiktokId))
+              console.info(`@${tiktokId} in chatting:`, newRoom);
 
             await ChatService.add({
               msg,
