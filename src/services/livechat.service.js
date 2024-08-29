@@ -189,9 +189,9 @@ class LiveService {
         }
       });
       tiktokLiveConnection.on("error", (err) => {
-        console.error(
-          `@${tiktokId} - Error event triggered: ${err.info}, ${err.exception}`
-        );
+        // console.error(
+        //   `@${tiktokId} - Error event triggered: ${err.info}, ${err.exception}`
+        // );
       });
     };
 }
