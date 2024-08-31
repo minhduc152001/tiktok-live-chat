@@ -1,7 +1,7 @@
 const RoomModel = require("../models/room.model");
 
 class RoomService {
-  static add = async ({ userId, roomId, owner, title, createTime }) => {
+  static add = async (userId, roomId, owner, title, createTime) => {
     try {
       const data = {
         user: userId,
@@ -16,7 +16,7 @@ class RoomService {
 
       return room;
     } catch (error) {
-      if (error.code === 11000) return await this.get(roomId);
+      return await this.get(roomId);
     }
   };
 
@@ -28,6 +28,7 @@ class RoomService {
   static list = async (userId) => {
     const rooms = await RoomModel.find({
       user: userId,
+      active: true,
     }).sort({ _id: -1 });
 
     return rooms;
@@ -38,6 +39,10 @@ class RoomService {
       { "owner.displayId": displayId },
       { isLive: false }
     );
+  };
+
+  static updateById = async (id, data) => {
+    return await RoomModel.findByIdAndUpdate(id, data, { new: true });
   };
 }
 
