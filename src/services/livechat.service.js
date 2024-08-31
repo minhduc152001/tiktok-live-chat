@@ -22,18 +22,9 @@ class LiveService {
       await UserService.updateJobIdForTiktokId({ userId, tiktokId, jobId });
 
       // Define room info
-      let newRoom = {
-        userId,
-        roomId: undefined,
-        owner: {
-          displayId: tiktokId,
-          nickname: tiktokId,
-        },
-        title: "",
-        createTime: undefined,
-      };
+      let newRoom = undefined;
 
-      let countAlreadyConnectingError = 0;
+      // let countAlreadyConnectingError = 0;
 
       let isLive = false;
 
@@ -58,18 +49,18 @@ class LiveService {
                 nickname: roomInfo.owner?.nickname || tiktokId,
               };
 
-              const { create_time: createTime, title } = roomInfo;
+              const { create_time: roomCreateTime, title } = roomInfo;
 
-              newRoom.owner = owner;
-              newRoom.roomId = roomId;
-              newRoom.title = title || "";
-              newRoom.createTime = createTime;
-
-              if (tiktokIdsCheck.includes(tiktokId))
-                console.info(`@${tiktokId} in connect():`, newRoom);
+              newRoom = await RoomService.add(
+                userId,
+                roomId,
+                owner,
+                title || "",
+                roomCreateTime || parseInt(Date.now() / 1000)
+              );
             })
             .catch(async (error) => {
-              // console.info(`Connection failed @${tiktokId}, ${error}`);
+              console.info(`Connection failed @${tiktokId}, ${error}`);
 
               const { create_time: createTime, finish_time: finishTime } =
                 roomInfo;
@@ -119,7 +110,7 @@ class LiveService {
           console.info(`getRoomInfo failed @${tiktokId}, ${err.message}`);
           return;
         }
-      }, 11000);
+      }, 15000);
 
       tiktokLiveConnection.on("connected", async (state) => {
         let roomId;
@@ -129,15 +120,16 @@ class LiveService {
             nickname: state.roomInfo.owner?.nickname || tiktokId,
           };
 
-          const { create_time: createTime, title } = state.roomInfo;
+          roomId = state.roomId;
+          const { create_time: roomCreateTime, title } = state.roomInfo;
 
-          newRoom.roomId = state.roomId;
-          newRoom.owner = owner;
-          newRoom.title = title || "";
-          newRoom.createTime = createTime;
-
-          if (tiktokIdsCheck.includes(tiktokId))
-            console.info(`@${tiktokId} on connected:`, newRoom);
+          newRoom = await RoomService.add(
+            userId,
+            roomId,
+            owner,
+            title || "",
+            roomCreateTime || parseInt(Date.now() / 1000)
+          );
         } catch (error) {
           console.error("Error when storing new room:", error);
           newRoom = await RoomService.get(roomId);
@@ -145,27 +137,19 @@ class LiveService {
       });
 
       tiktokLiveConnection.on("chat", async (msg) => {
-        if (tiktokIdsCheck.includes(tiktokId))
-          console.info(`@${tiktokId} before chat:`, newRoom);
-
         try {
-          if (newRoom.roomId) {
-            if (!newRoom?._id)
-              newRoom = await RoomService.add({
-                ...newRoom,
-                createTime: newRoom.createTime || parseInt(Date.now() / 1000),
-              });
+          const roomObjectId = newRoom._id;
 
-            if (tiktokIdsCheck.includes(tiktokId))
-              console.info(`@${tiktokId} in chatting:`, newRoom);
+          // Update active live room
+          await RoomService.updateById(roomObjectId, { active: true });
 
-            await ChatService.add({
-              msg,
-              room: newRoom._id,
-              userId,
-              liveTiktokId: tiktokId,
-            });
-          }
+          // Add new chat
+          await ChatService.add({
+            msg,
+            room: roomObjectId,
+            userId,
+            liveTiktokId: tiktokId,
+          });
         } catch (error) {
           console.error("Error when adding new chat", error);
         }
@@ -189,9 +173,9 @@ class LiveService {
         }
       });
       tiktokLiveConnection.on("error", (err) => {
-        // console.error(
-        //   `@${tiktokId} - Error event triggered: ${err.info}, ${err.exception}`
-        // );
+        console.error(
+          `@${tiktokId} - Error event triggered: ${err.info}, ${err.exception}`
+        );
       });
     };
 }

@@ -30,6 +30,10 @@ const roomSchema = new mongoose.Schema(
     createTime: {
       type: Date,
     },
+    active: {
+      type: Boolean,
+      default: false,
+    },
   },
   { timestamps: true }
 );
