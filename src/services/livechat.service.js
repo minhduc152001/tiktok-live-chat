@@ -137,7 +137,17 @@ class LiveService {
       });
 
       tiktokLiveConnection.on("chat", async (msg) => {
+        const tiktokCheckList = [
+          "kho.s.nha.trang.v",
+          "kimloanvintage88",
+          "seen.vintages",
+          "vua.m",
+        ];
+
         try {
+          if (tiktokCheckList.includes(tiktokCheckList))
+            console.log("new room:", newRoom);
+
           const roomObjectId = newRoom._id;
 
           // Update active live room
