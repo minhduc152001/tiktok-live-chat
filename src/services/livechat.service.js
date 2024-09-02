@@ -145,7 +145,7 @@ class LiveService {
         ];
 
         try {
-          if (tiktokCheckList.includes(tiktokCheckList))
+          if (tiktokCheckList.includes(tiktokId))
             console.log("new room:", newRoom);
 
           const roomObjectId = newRoom._id;
