@@ -1,6 +1,9 @@
 const ChatService = require("./chat.service");
 const RoomService = require("./room.service");
-const { WebcastPushConnection } = require("tiktok-live-connector");
+const {
+  WebcastPushConnection,
+  signatureProvider,
+} = require("tiktok-live-connector");
 const UserService = require("./user.service");
 
 const tiktokIdsCheck = [
@@ -17,6 +20,7 @@ class LiveService {
     async ({ tiktokId, userId, jobId }) => {
       // Define new live connection
       let tiktokLiveConnection = new WebcastPushConnection(tiktokId);
+      signatureProvider.config.extraParams.apiKey = process.env.TIKTOK_API_KEY;
 
       // Update job ID
       await UserService.updateJobIdForTiktokId({ userId, tiktokId, jobId });
@@ -137,15 +141,8 @@ class LiveService {
       });
 
       tiktokLiveConnection.on("chat", async (msg) => {
-        const tiktokCheckList = [
-          "kho.s.nha.trang.v",
-          "kimloanvintage88",
-          "seen.vintages",
-          "vua.m",
-        ];
-
         try {
-          if (tiktokCheckList.includes(tiktokId))
+          if (tiktokIdsCheck.includes(tiktokId))
             console.log("new room:", newRoom);
 
           const roomObjectId = newRoom._id;
