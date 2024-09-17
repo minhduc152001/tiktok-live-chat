@@ -10,6 +10,7 @@ class RoomService {
         title,
         createTime: new Date(parseInt(createTime) * 1000),
         isLive: true,
+        active: true,
       };
 
       const room = await RoomModel.create(data);
@@ -20,8 +21,8 @@ class RoomService {
     }
   };
 
-  static get = async (roomId) => {
-    const room = await RoomModel.findOne({ roomId });
+  static get = async ({ roomId, userId }) => {
+    const room = await RoomModel.findOne({ roomId, user: userId });
     return room;
   };
 

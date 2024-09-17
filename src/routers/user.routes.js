@@ -9,7 +9,7 @@ const {
   getAllUsers,
   updateUser,
 } = require("../controllers/auth.controller");
-const { getMe, startTrackingLive } = require("../controllers/user.controller");
+const { getMe } = require("../controllers/user.controller");
 
 const router = express.Router();
 
@@ -19,7 +19,6 @@ router.get("/logout", logout);
 
 // Protected routes
 router.get("/me", protect, getMe);
-router.get("/start-tracking-live", protect, startTrackingLive);
 
 // Strict routes
 router

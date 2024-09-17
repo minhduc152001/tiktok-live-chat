@@ -28,6 +28,7 @@ class ChatService {
     );
 
     const data = {
+      user: userId,
       room,
       customer: customer._id,
       comment: msg.comment,

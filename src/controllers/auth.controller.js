@@ -3,7 +3,6 @@ const catchAsync = require("../utils/catchAsync");
 const AppError = require("../utils/AppError");
 const UserModel = require("../models/user.model");
 const { promisify } = require("util");
-const { jobQueue, removeJob } = require("../clients/queue");
 
 const signToken = (id) =>
   jwt.sign({ id }, process.env.JWT_SECRET, {
@@ -34,29 +33,6 @@ exports.signup = catchAsync(async (req, res, next) => {
 exports.createUser = catchAsync(async (req, res, next) => {
   try {
     let user = await UserModel.create(req.body);
-    const userId = user._id;
-
-    // start tracker TikTok ID and store job id
-    const newTiktokIdsArr = await Promise.all(
-      user.tiktokIds.map(async ({ tiktokId }) => {
-        const job = await jobQueue.add({
-          tiktokId,
-          userId,
-        });
-
-        return {
-          tiktokId,
-          jobId: job.id,
-        };
-      })
-    );
-    user = await UserModel.findByIdAndUpdate(
-      userId,
-      {
-        tiktokIds: newTiktokIdsArr,
-      },
-      { new: true }
-    );
 
     res.status(200).json({
       status: "success",
@@ -74,29 +50,6 @@ exports.createUser = catchAsync(async (req, res, next) => {
 
 exports.updateUser = catchAsync(async (req, res, next) => {
   const { userId, ...data } = req.body;
-
-  if (!!data.tiktokIds) {
-    const currentTiktokIdObject = (await UserModel.findById(userId)).tiktokIds;
-
-    await Promise.all(
-      currentTiktokIdObject.map(async ({ jobId }) => await removeJob(jobId))
-    );
-    const newTiktokIds = await Promise.all(
-      data.tiktokIds.map(async ({ tiktokId }) => {
-        const job = await jobQueue.add({
-          tiktokId,
-          userId,
-        });
-
-        return {
-          tiktokId,
-          jobId: job.id,
-        };
-      })
-    );
-
-    data.tiktokIds = newTiktokIds;
-  }
 
   const user = await UserModel.findByIdAndUpdate(userId, data, { new: true });
 

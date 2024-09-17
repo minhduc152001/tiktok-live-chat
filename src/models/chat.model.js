@@ -20,6 +20,9 @@ const chatSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
+    user: {
+      type: String,
+    },
     createdAt: {
       type: Date,
       default: Date.now,
@@ -34,6 +37,7 @@ const chatSchema = new mongoose.Schema(
 chatSchema.index({ comment: "text" });
 chatSchema.index({ room: 1 });
 chatSchema.index({ customer: 1 });
+chatSchema.index({ user: 1, msgId: 1 }, { unique: true });
 
 const ChatModel = mongoose.model("Chat", chatSchema);
 
