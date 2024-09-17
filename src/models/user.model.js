@@ -32,19 +32,7 @@ const userSchema = new mongoose.Schema(
       required: [true, "Password can not be empty"],
     },
     tiktokIds: {
-      type: [
-        {
-          tiktokId: {
-            type: String,
-            required: [true, "TikTok ID can not be empty"],
-          },
-          jobId: {
-            type: Number,
-            default: null,
-          },
-          _id: false,
-        },
-      ],
+      type: [String],
       default: [],
     },
     role: {

@@ -5,7 +5,6 @@ const roomSchema = new mongoose.Schema(
     roomId: {
       type: String,
       required: [true, "Room ID can not be empty"],
-      unique: true,
     },
     isLive: {
       type: Boolean,
@@ -37,6 +36,8 @@ const roomSchema = new mongoose.Schema(
   },
   { timestamps: true }
 );
+
+roomSchema.index({ roomSchema: 1, user: 1 }, { unique: true });
 
 const RoomModel = mongoose.model("Room", roomSchema);
 
