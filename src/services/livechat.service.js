@@ -47,6 +47,8 @@ class LiveService {
             title || "",
             roomCreateTime || parseInt(Date.now() / 1000)
           );
+
+          console.log("new room in connect():", newRoom);
         })
         .catch(async (error) => {
           console.info(`Connection failed @${tiktokId}, ${error}`);
@@ -100,6 +102,8 @@ class LiveService {
     // });
 
     tiktokLiveConnection.on("chat", async (msg) => {
+      console.log("new room on chat:", newRoom);
+
       try {
         const roomObjectId = newRoom._id;
 
@@ -111,6 +115,8 @@ class LiveService {
           liveTiktokId: tiktokId,
         });
       } catch (error) {
+        console.log("new-room chat error:", newRoom);
+
         console.error("Error when adding new chat", error);
       }
     });
