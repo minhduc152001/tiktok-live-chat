@@ -18,7 +18,7 @@ class RoomService {
       return room;
     } catch (error) {
       console.error("error adding room:", error);
-      return await this.get(roomId);
+      return await this.get({ roomId, userId });
     }
   };
 
