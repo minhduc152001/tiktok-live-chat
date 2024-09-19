@@ -47,8 +47,6 @@ class LiveService {
             title || "",
             roomCreateTime || parseInt(Date.now() / 1000)
           );
-
-          throw new Error("Test error");
         })
         .catch(async (error) => {
           console.info(`Connection failed @${tiktokId}, ${error}`);
